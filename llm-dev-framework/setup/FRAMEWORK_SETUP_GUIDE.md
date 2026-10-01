@@ -1,0 +1,116 @@
+# AI Dev-Tracking Framework — setup guide
+
+This is **not** a README for an application — it's the setup guide for this
+toolkit itself. It describes how to configure the framework, not what any
+particular project you build with it does. Once you copy `project-template/`
+into a real project, write that project's own `README.md` separately — this
+file has no relationship to it and should stay outside the project folder,
+in whatever location you keep this template.
+
+A two-pronged system for working collaboratively with Claude Code: a
+human-readable record of what changed and why, plus a machine-readable log
+and enforcement hooks so the record can't be silently skipped.
+
+## What's in this folder
+
+| File | Purpose |
+|---|---|
+| `setup/GLOBAL_CLAUDE_md_snippet.md` | Paste into `~/.claude/CLAUDE.md` once — makes every project aware of the convention |
+| `setup/STARTUP_CHECKLIST.md` | Run through when starting (or auditing) a project |
+| `setup/WALKTHROUGH.md` | Step-by-step version of this setup, with explicit commands |
+| `project-template/CLAUDE.md` | Full spec — copy to a new repo's root and fill in the project-specific sections |
+| `project-template/llm/PROJECT_STATE.md` | Example — current-truth snapshot, overwritten every session |
+| `project-template/llm/CHANGELOG.md` | Example — prose history, append-only |
+| `project-template/llm/CHANGES.jsonl` | Example — structured per-file log |
+| `project-template/llm/DECISIONS.md` | Example — architecture decision records |
+| `project-template/llm/ARCHITECTURE.md` | Example — static system reference |
+| `project-template/llm/TODO.md` | Example — actual roadmap |
+| `project-template/llm/KNOWN_ISSUES.md` | Example — bugs, limitations, tech debt (distinct from TODO's planned work) |
+| `project-template/llm/SESSIONS.jsonl` | Example — log of real session boundaries (exit/clear/logout) |
+| `project-template/.claude/settings.json` | Wires up the Stop, PreCompact, and SessionEnd hooks |
+| `project-template/.claude/hooks/check_project_state.sh` | Blocks session end if PROJECT_STATE.md's content wasn't actually changed |
+| `project-template/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
+| `project-template/.claude/hooks/log_session_end.sh` | Advisory logger — appends to llm/SESSIONS.jsonl on real session end |
+| `project-template/.gitignore` | Pre-includes `.claude/settings.local.json` so secrets never get committed by default |
+
+## How to set up a new project
+
+1. One-time: append `GLOBAL_CLAUDE_md_snippet.md` to `~/.claude/CLAUDE.md`
+2. Copy `project-template/` into your new repo (or copy `CLAUDE.md`, `llm/`,
+   and `.claude/` individually)
+3. Clear the example content out of the `llm/` files, keep the structure
+   (an empty `llm/SESSIONS.jsonl` is fine — the SessionEnd hook creates it
+   if missing). Exception: keep the `[framework]` entry at the top of
+   `KNOWN_ISSUES.md` — it's a standing note about the framework itself,
+   not project-specific example content, and should ship with every
+   new project.
+4. `chmod +x .claude/hooks/*.sh`
+5. Fill in the project overview / commands section of `CLAUDE.md`
+6. Run through `STARTUP_CHECKLIST.md`
+
+From that point, Claude Code picks up the convention automatically — no
+re-instruction needed at the start of future sessions.
+
+## Session commands for regular use
+
+| Command | What it does |
+|---|---|
+| `claude` | Starts a fresh session in the current directory |
+| `claude -c` / `claude --continue` | Resumes your most recent session automatically, no picker |
+| `claude -r` / `claude --resume` | Opens a picker to choose from past sessions |
+| `/clear` | Ends the current session and starts a new one (new session ID), while staying inside Claude Code. Fires `SessionEnd` (reason: `clear`), then `SessionStart` |
+| `/exit` | Fully closes Claude Code, back to your normal terminal. Fires `SessionEnd` (reason varies by version — `exit` or `other`) |
+| `/compact` | Summarizes the current conversation to free up context, without ending the session. Does not fire `SessionEnd` or `Stop` |
+| Closing the terminal / Ctrl+D | Also ends the session; everything is autosaved continuously so nothing is lost |
+
+There's no timeout — sessions don't expire from inactivity. Ending one is always one of the actions above, not something that happens automatically in the background.
+
+## Design notes
+- `PROJECT_STATE.md` is the single most important file: overwritten (not
+  appended), it answers "where are we right now" in under a minute for
+  anyone — human or a fresh Claude session.
+- `CHANGELOG.md` / `CHANGES.jsonl` are append-only and update per logical
+  change, not per session.
+- `DECISIONS.md` is judgment-based — no hook can detect "a decision
+  happened," so this one relies on the CLAUDE.md instruction and periodic
+  human review.
+- `ARCHITECTURE.md` and `TODO.md` update on request, not on a timer.
+- `CLAUDE.md` now covers behavior, not just file-tracking conventions:
+  a decision-ownership boundary (what needs your approval vs. what
+  Claude can decide alone), an architectural-change protocol (propose
+  and get approval before a big restructure, rather than reshaping the
+  app mid-feature), a task-completion standard (don't report something
+  done without verifying it), and explicit uncertainty-handling rules
+  (state what's known vs. assumed vs. unverified, don't invent
+  requirements or results). These are enforced only by the model reading
+  and following CLAUDE.md — there's no hook that can verify "did Claude
+  actually ask before a big architectural change," so treat this layer
+  as strong guidance, not a guarantee, the same as DECISIONS.md.
+- `KNOWN_ISSUES.md` is separate from `TODO.md`: TODO is planned work,
+  KNOWN_ISSUES is problems that exist right now (bugs, limitations, tech
+  debt). Status is updated in place (open → in-progress → resolved)
+  rather than deleting entries, so it stays a real history.
+- `CLAUDE.md`'s "Handling personal and sensitive data" section covers the
+  *application's* data (user info, uploaded files, test data) — distinct
+  from the Rules-section instruction about framework secrets
+  (`.claude/settings.local.json`), which only covers this project's own
+  tooling config. Both are needed; they protect different things.
+- **Enforcement lives on `Stop`, not `SessionEnd`.** `Stop` fires at the end
+  of *every response turn*, not just when a session truly ends — and it's
+  the only one of the two that can actually block anything. `SessionEnd`
+  fires on real session boundaries (`/exit`, `/clear`, logout) but is
+  advisory-only in Claude Code: it cannot block termination, and some
+  versions have had it fail to fire reliably on every exit path. So
+  `SessionEnd` is used here purely to log the boundary to
+  `llm/SESSIONS.jsonl` — the actual safety net is still `Stop`.
+- Because `Stop` fires so often, the check can't just be "was the file
+  touched recently" — that would trivially pass forever after the first
+  edit, including from the hook's own auto-stamp step. Instead,
+  `check_project_state.sh` hashes the file's content (excluding the header
+  line it stamps) and only allows the session to continue once that hash
+  has actually changed since the last check.
+- The Stop hook auto-stamps the session ID and timestamp onto
+  `PROJECT_STATE.md`'s header line using the `session_id` field Claude Code
+  passes to every hook on stdin — no manual lookup needed. This depends on
+  `jq` being installed and on your Claude Code version exposing
+  `session_id` to the Stop event; if the header shows "unknown," check both.

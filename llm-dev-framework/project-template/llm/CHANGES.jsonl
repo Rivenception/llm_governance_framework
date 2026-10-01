@@ -1,0 +1,8 @@
+{"date":"2026-07-28","session":"sess_2026-07-28_01","file":"src/api/projects.js","type":"logic-change","summary":"Add CRUD routes for projects resource"}
+{"date":"2026-07-28","session":"sess_2026-07-28_01","file":"src/api/routes.js","type":"config","summary":"Register projects routes"}
+{"date":"2026-07-28","session":"sess_2026-07-28_01","file":"tests/projects.test.js","type":"test","summary":"Add tests for projects CRUD routes"}
+{"date":"2026-07-29","session":"sess_2026-07-29_02","file":"src/auth/middleware.js","type":"bugfix","summary":"Return 401 instead of 500 on expired session"}
+{"date":"2026-07-29","session":"sess_2026-07-29_02","file":"src/auth/middleware.js","type":"logic-change","summary":"Switch to refresh-token verification"}
+{"date":"2026-07-29","session":"sess_2026-07-29_02","file":"src/auth/tokens.js","type":"logic-change","summary":"Add refresh-token issuance and rotation"}
+{"date":"2026-07-29","session":"sess_2026-07-29_02","file":"src/auth/routes.js","type":"logic-change","summary":"Add /auth/refresh endpoint"}
+{"date":"2026-07-29","session":"sess_2026-07-29_02","file":"tests/auth.test.js","type":"test","summary":"Add tests for refresh-token flow"}

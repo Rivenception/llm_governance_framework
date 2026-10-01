@@ -1,0 +1,2 @@
+# Claude Code — personal/local settings, may contain secrets
+.claude/settings.local.json
