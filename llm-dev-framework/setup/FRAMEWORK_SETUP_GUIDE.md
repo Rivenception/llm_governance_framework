@@ -122,8 +122,8 @@ There's no timeout — sessions don't expire from inactivity. Ending one is alwa
 - Because `Stop` fires so often, the check can't just be "was the file
   touched recently" — that would trivially pass forever after the first
   edit, including from the hook's own auto-stamp step. Instead,
-  `check_project_state.sh` hashes the file's content (excluding the header
-  line it stamps) and only allows the session to continue once that hash
+  `check_project_state.sh` hashes the file's content (excluding the
+  `Last updated:` line it stamps) and only allows the session to continue once that hash
   has actually changed since the last check.
 - The Stop hook auto-stamps the session ID and timestamp onto
   `PROJECT_STATE.md`'s header line using the `session_id` field Claude Code

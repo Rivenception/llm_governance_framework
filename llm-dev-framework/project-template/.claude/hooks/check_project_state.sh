@@ -45,10 +45,10 @@ if [ ! -f "$STATE_FILE" ]; then
   exit 2
 fi
 
-# Hash everything EXCEPT line 1 (the auto-stamped "Last updated: ... |
-# Session: ..." header), so re-stamping the header never counts as a
-# "real" change on its own.
-CURRENT_HASH=$(tail -n +2 "$STATE_FILE" | sha256)
+# Hash everything EXCEPT the auto-stamped "Last updated: ... | Session: ..."
+# line, so re-stamping never counts as a "real" change on its own. Match by
+# pattern, not line number: the stamp sits on line 2, under the title.
+CURRENT_HASH=$(grep -v '^Last updated:' "$STATE_FILE" | sha256)
 LAST_HASH=$(cat "$HASH_FILE" 2>/dev/null || echo "")
 
 if [ "$CURRENT_HASH" = "$LAST_HASH" ]; then
@@ -58,7 +58,7 @@ fi
 
 # Real change confirmed. Record the new hash, then auto-stamp the header
 # with the session ID and timestamp (this stamp itself doesn't affect the
-# hash next time, since we hash from line 2 onward).
+# hash next time, since the stamp line is excluded from it).
 echo "$CURRENT_HASH" > "$HASH_FILE"
 
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
