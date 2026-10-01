@@ -11,18 +11,19 @@ Run through this before (or right at) the start of real work on a new repo.
 - [ ] `llm/TODO.md` exists
 - [ ] `llm/KNOWN_ISSUES.md` exists
 - [ ] `llm/SESSIONS.jsonl` exists (or let the SessionEnd hook create it)
-If missing, copy from `project-template/llm/` in this framework, or ask
+If missing, copy from `templates/llm/` in this framework, or ask
 Claude: "set up the llm/ change-tracking folder from my standard template."
 
 ## 2. Confirm CLAUDE.md
-- [ ] `CLAUDE.md` exists at repo root and includes the change-tracking spec
+- [ ] `CLAUDE.md` exists at repo root and `@imports` `llm/framework/RULES.md` and `llm/framework/llm-records.md`
+- [ ] `llm/framework/RULES.md` and `llm/framework/llm-records.md` both exist
 - [ ] Project overview, commands, and project scope/stack sections are
       filled in (not placeholder text)
-- [ ] Decision-ownership, architectural-change-protocol, and
-      uncertainty-handling sections are present — these govern behavior,
-      not just file tracking, and are worth a periodic re-read
-- [ ] "Handling personal and sensitive data" section is present — covers
-      the application's own user data, distinct from the framework-secrets
+- [ ] `llm/framework/RULES.md` contains the decision-ownership,
+      architectural-change-protocol, uncertainty-handling, and personal
+      data sections. These govern behavior, not just file tracking, and
+      are worth a periodic re-read. The sensitive-data section covers the
+      application's own user data, distinct from the framework-secrets
       rule in section 4 below
 
 ## 3. Confirm hooks are wired up

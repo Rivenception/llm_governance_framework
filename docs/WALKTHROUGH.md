@@ -1,8 +1,8 @@
 # Walkthrough: setting up a new project with this framework
 
-This is the step-by-step version of `FRAMEWORK_SETUP_GUIDE.md` — same
+This is the step-by-step version of `SETUP_GUIDE.md` — same
 information, laid out as explicit actions rather than reference tables.
-Use `STARTUP_CHECKLIST.md` afterward to verify everything took.
+Use `docs/STARTUP_CHECKLIST.md` afterward to verify everything took.
 
 ## 0. One-time: create your global CLAUDE.md
 
@@ -20,7 +20,7 @@ You only do this once, ever — not per project.
 4. Once inside the session, run `/memory`.
 5. From the menu, choose **User Memory (`~/.claude/CLAUDE.md`)**.
 6. Your default editor opens the file (creating it if it doesn't exist).
-   Paste in the full contents of `setup/GLOBAL_CLAUDE_md_snippet.md`.
+   Paste in the full contents of `docs/GLOBAL_CLAUDE_md_snippet.md`.
 7. Save and close the editor. Claude Code reloads it automatically.
 8. Exit the session (`/exit`), then delete the throwaway folder — it has
    no further purpose once this file is saved.
@@ -30,55 +30,48 @@ directory and got asked to trust your entire profile, choose **No, exit**
 and restart from step 2 with a small dedicated folder instead. Trusting
 your whole home directory is broader access than this step needs.
 
-## 1. Copy the project template into your new repo
+## 1. Copy the framework pieces into your new repo
 
-1. Locate wherever you've stored this framework permanently (e.g.
-   `~/claude-templates/llm-dev-framework/`).
-2. Copy the entire contents of `project-template/` — not the `setup/`
-   folder — into your new project's root directory:
+1. Locate wherever you've cloned this framework permanently (e.g.
+   `~/claude-templates/llm-governance-framework/`).
+2. From the framework repo, with `TARGET` set to your new project's root:
    ```
-   cp -r ~/claude-templates/llm-dev-framework/project-template/. path/to/new-project/
+   cp -r adapters/claude-code/. "$TARGET"/
+   mkdir -p "$TARGET"/llm/framework
+   cp -r templates/llm/. "$TARGET"/llm/
+   cp core/*.md "$TARGET"/llm/framework/
    ```
 3. Confirm the copy landed correctly: `CLAUDE.md`, `.gitignore`, `.claude/`,
-   and `llm/` should now all be sitting at your new project's root.
+   and `llm/` (with `llm/framework/` inside) should now all be sitting at
+   your new project's root.
 
-## 2. Edit CLAUDE.md — the one file that needs your input
+## 2. Edit CLAUDE.md, the one file that needs your input
 
 Open the copied `CLAUDE.md` and fill in the bracketed placeholders:
 
-- **Project overview** — one paragraph: what this project is, who it's
+- **Project overview**: one paragraph on what this project is, who it's
   for, current phase.
-- **Commands** — install / test / run commands for your actual stack.
-- **Project scope and stack** — target users, what's explicitly out of
+- **Commands**: install / test / run commands for your actual stack.
+- **Project scope and stack**: target users, what's explicitly out of
   scope, tech stack, design conventions, architecture pattern in use.
   You can talk this through with Claude conversationally before writing
-  the final version here — that's fine, it's brainstorming, not a
+  the final version here. That's fine, it's brainstorming, not a
   conflict with "human-owned." Just make sure it's actually filled in
   (no leftover `[...]`) before you consider it settled, since from that
   point on it's treated as fixed.
 
-Everything else in the file — the change-tracking spec, decision-ownership
-list, architectural change protocol, task completion standard, personal
-data handling, and rules — is
-already complete and ready to use as-is.
+Everything else (the session-ID note, the `@imports` of the core rules,
+and the enforcement notes) is ready to use as-is. The rules themselves
+(decision ownership, architectural change protocol, completion standard,
+personal data handling, record formats) live in `llm/framework/`.
 
-## 3. Clear example content from the llm/ files
+## 3. The llm/ files start blank
 
-For each of these, delete the sample entries but keep the file's header
-and section format:
-- `llm/PROJECT_STATE.md`
-- `llm/CHANGELOG.md`
-- `llm/CHANGES.jsonl` (leave empty)
-- `llm/DECISIONS.md`
-- `llm/ARCHITECTURE.md`
-- `llm/TODO.md`
-- `llm/SESSIONS.jsonl` (leave empty or delete — the SessionEnd hook
-  recreates it)
-
-**One exception:** in `llm/KNOWN_ISSUES.md`, delete only the three example
-bug entries (the token-revocation, authorization-check, and flaky-test
-examples). Keep the `[framework]` entry and the note above it — that's
-permanent documentation about the framework itself, not example content.
+The `llm/` files copied from `templates/llm/` are empty skeletons, so
+there is nothing to clear. `llm/KNOWN_ISSUES.md` ships with the
+`[framework]` entry and the note above it; keep those, they're permanent
+documentation about the framework itself. See `examples/llm/` for what
+populated files look like.
 
 ## 4. Install jq and make the hook scripts executable
 
@@ -114,7 +107,7 @@ again; choose **Yes, proceed** since this is your actual project.
 
 ## 7. Verify it's working
 
-Run through `STARTUP_CHECKLIST.md` to confirm the folder structure,
+Run through `docs/STARTUP_CHECKLIST.md` to confirm the folder structure,
 `CLAUDE.md` content, hooks, and `.gitignore` are all correctly in place
 before you start real work.
 
@@ -125,5 +118,6 @@ before you start real work.
 | Needs your input | Copy-paste as-is |
 |---|---|
 | `CLAUDE.md` (overview, commands, scope/stack) | `.claude/settings.json` |
-| `llm/*` files (clear examples, keep structure) | `.claude/hooks/*.sh` |
+| | `.claude/hooks/*.sh` |
+| | `llm/` skeletons and `llm/framework/` |
 | | `.gitignore` |
