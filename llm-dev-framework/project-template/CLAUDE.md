@@ -31,6 +31,13 @@ yet-locked policy.
 - Architecture pattern in use (e.g. layered, MVC, none-yet): [...] — don't
   assume a pattern that wasn't specified here.
 
+## Session ID and timestamps
+A SessionStart hook injects the session ID and start time into your
+context. Use that exact session ID in every `Session:` field and in
+`CHANGES.jsonl`. For entry timestamps, run `date "+%Y-%m-%d %H:%M"` —
+never estimate. If no session ID was injected, write `unknown` rather than
+inventing one, and tell me the hook isn't working (usually `jq` missing).
+
 ## Change tracking (llm/ folder)
 This project uses `llm/` for a durable record of AI-assisted changes,
 readable by both humans and future Claude sessions. Keep entries factual
@@ -43,7 +50,8 @@ it should let anyone (human or a fresh Claude session) understand the
 project's status in under a minute.
 
 ### llm/CHANGELOG.md — prose history
-Append one entry per logical change (not per file edit). Format:
+Add one entry per logical change (not per file edit), at the TOP of the
+file (newest first). Format:
 ```
 ## [YYYY-MM-DD HH:MM] Short title
 Session: <session-id>
@@ -59,8 +67,8 @@ Append one JSON line per file modified in a change:
 `type` is one of: `logic-change`, `bugfix`, `refactor`, `config`, `docs`, `test`
 
 ### llm/DECISIONS.md — architecture decision records
-Append when a nontrivial design choice is made — especially when
-rejecting an approach:
+Add an entry at the TOP of the file (newest first) when a nontrivial
+design choice is made — especially when rejecting an approach:
 ```
 ## [YYYY-MM-DD] Decision title
 Context: why this came up
@@ -84,7 +92,7 @@ Format:
 ```
 ## [YYYY-MM-DD] Short title
 Severity: low | medium | high
-Status: open | in-progress | resolved
+Status: open | in-progress | resolved | accepted
 Files: file1.py, file2.py
 Description: what's wrong
 Potential solution: if known
@@ -175,8 +183,9 @@ project's own tooling config.
   changed (not just that it was touched), so treat it as non-optional.
   Note: Stop fires at the end of every response turn, not only at session
   end, so don't be surprised if this check runs frequently.
-- Append-only for CHANGELOG.md, CHANGES.jsonl, and DECISIONS.md — never
-  rewrite or delete past entries.
+- CHANGELOG.md and DECISIONS.md are add-only, newest entry at the top.
+  CHANGES.jsonl is add-only, new lines at the end. Never rewrite or delete
+  past entries in any of them.
 - For KNOWN_ISSUES.md, update status in place (open → in-progress →
   resolved) rather than deleting resolved entries.
 - Don't re-read the full CHANGELOG at the start of a session unless asked

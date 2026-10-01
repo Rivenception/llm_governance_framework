@@ -80,13 +80,16 @@ bug entries (the token-revocation, authorization-check, and flaky-test
 examples). Keep the `[framework]` entry and the note above it — that's
 permanent documentation about the framework itself, not example content.
 
-## 4. Make the hook scripts executable
+## 4. Install jq and make the hook scripts executable
+
+Install `jq` first if you don't have it (`jq --version` to check) — the
+hooks need it.
 
 From the project root:
 ```
 chmod +x .claude/hooks/*.sh
 ```
-Required once per project. Without it, the Stop, PreCompact, and
+Required once per project. Without it, the SessionStart, Stop, PreCompact, and
 SessionEnd hooks will silently fail to run.
 
 ## 5. Confirm .gitignore and settings.json
@@ -95,7 +98,7 @@ Both are copy-paste-ready, no edits needed:
 - `.gitignore` already includes `.claude/settings.local.json`. If your
   project already has its own `.gitignore`, merge that one line into it
   rather than overwriting your existing file.
-- `.claude/settings.json` already wires up all three hooks correctly.
+- `.claude/settings.json` already wires up all four hooks correctly.
 
 ## 6. Start Claude Code in the project directory
 

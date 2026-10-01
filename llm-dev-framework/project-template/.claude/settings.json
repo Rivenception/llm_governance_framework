@@ -1,11 +1,21 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_start.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/check_project_state.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check_project_state.sh"
           }
         ]
       }
@@ -15,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/check_precompact.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check_precompact.sh"
           }
         ]
       }
@@ -25,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/log_session_end.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/log_session_end.sh"
           }
         ]
       }

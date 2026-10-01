@@ -1,5 +1,5 @@
 # Decisions
-Architecture Decision Records. Append-only, newest at top. Log real forks in
+Architecture Decision Records. Add-only, newest at top. Log real forks in
 the road — not every small choice.
 
 ## [2026-07-29] Refresh tokens over long-lived access tokens

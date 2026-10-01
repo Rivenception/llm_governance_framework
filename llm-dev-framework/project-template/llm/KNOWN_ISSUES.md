@@ -10,9 +10,9 @@ occurrence — don't copy that header style for actual bugs.
 
 ## [framework] Decision-ownership and architecture-protocol rules are prose-only
 Severity: medium
-Status: accepted (by design, see llm/DECISIONS.md if you revisit this)
+Status: accepted
 Files: CLAUDE.md
-Description: The "requires my approval" list and architectural change
+Description: Accepted by design. The "requires my approval" list and architectural change
 protocol in CLAUDE.md are natural-language instructions, not hook-
 enforced. Nothing blocks Claude from making one of those changes without
 asking; the only safeguard is the self-check Claude runs before marking

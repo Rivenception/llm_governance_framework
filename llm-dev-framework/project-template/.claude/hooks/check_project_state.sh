@@ -6,7 +6,25 @@
 # step below -- an mtime check would pass forever after the first real edit.
 #
 # Exit 2 = block, feed stderr back to Claude as the reason to keep working.
+# Exit 1 = non-blocking error, shown to the user (used for missing tooling).
 # Exit 0 = allow.
+
+# jq is required to read the hook input. Fail visibly rather than silently
+# losing the loop guard below.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "check_project_state.sh: jq is not installed, so PROJECT_STATE enforcement is NOT running. Install jq (see setup guide)." >&2
+  exit 1
+fi
+
+# Portable sha256: sha256sum (Linux, Git Bash) or shasum (macOS).
+if command -v sha256sum >/dev/null 2>&1; then
+  sha256() { sha256sum | awk '{print $1}'; }
+elif command -v shasum >/dev/null 2>&1; then
+  sha256() { shasum -a 256 | awk '{print $1}'; }
+else
+  echo "check_project_state.sh: neither sha256sum nor shasum found, so PROJECT_STATE enforcement is NOT running." >&2
+  exit 1
+fi
 
 INPUT=$(cat)
 
@@ -17,8 +35,10 @@ if [ "$STOP_HOOK_ACTIVE" = "true" ]; then
   exit 0
 fi
 
-STATE_FILE="llm/PROJECT_STATE.md"
-HASH_FILE=".claude/hooks/.last_verified_hash"
+# Resolve paths from the project root so this works regardless of cwd.
+ROOT="${CLAUDE_PROJECT_DIR:-.}"
+STATE_FILE="$ROOT/llm/PROJECT_STATE.md"
+HASH_FILE="$ROOT/.claude/hooks/.last_verified_hash"
 
 if [ ! -f "$STATE_FILE" ]; then
   echo "llm/PROJECT_STATE.md does not exist. Create it before ending the session." >&2
@@ -28,7 +48,7 @@ fi
 # Hash everything EXCEPT line 1 (the auto-stamped "Last updated: ... |
 # Session: ..." header), so re-stamping the header never counts as a
 # "real" change on its own.
-CURRENT_HASH=$(tail -n +2 "$STATE_FILE" | shasum -a 256 | awk '{print $1}')
+CURRENT_HASH=$(tail -n +2 "$STATE_FILE" | sha256)
 LAST_HASH=$(cat "$HASH_FILE" 2>/dev/null || echo "")
 
 if [ "$CURRENT_HASH" = "$LAST_HASH" ]; then

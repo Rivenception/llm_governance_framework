@@ -27,11 +27,19 @@ and enforcement hooks so the record can't be silently skipped.
 | `project-template/llm/TODO.md` | Example — actual roadmap |
 | `project-template/llm/KNOWN_ISSUES.md` | Example — bugs, limitations, tech debt (distinct from TODO's planned work) |
 | `project-template/llm/SESSIONS.jsonl` | Example — log of real session boundaries (exit/clear/logout) |
-| `project-template/.claude/settings.json` | Wires up the Stop, PreCompact, and SessionEnd hooks |
+| `project-template/.claude/settings.json` | Wires up the SessionStart, Stop, PreCompact, and SessionEnd hooks |
+| `project-template/.claude/hooks/session_start.sh` | Injects the session ID and datetime into Claude's context so llm/ entries use real values |
 | `project-template/.claude/hooks/check_project_state.sh` | Blocks session end if PROJECT_STATE.md's content wasn't actually changed |
 | `project-template/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
 | `project-template/.claude/hooks/log_session_end.sh` | Advisory logger — appends to llm/SESSIONS.jsonl on real session end |
-| `project-template/.gitignore` | Pre-includes `.claude/settings.local.json` so secrets never get committed by default |
+| `project-template/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the Stop hook's local hash file |
+
+## Prerequisites
+
+- `bash` (Git Bash on Windows works), `jq`, and `sha256sum` or `shasum`.
+- **`jq` is required.** Without it the hooks print a visible error and
+  PROJECT_STATE enforcement does not run. Windows: `winget install jqlang.jq`
+  or `choco install jq`; macOS: `brew install jq`.
 
 ## How to set up a new project
 
@@ -95,6 +103,14 @@ There's no timeout — sessions don't expire from inactivity. Ending one is alwa
   from the Rules-section instruction about framework secrets
   (`.claude/settings.local.json`), which only covers this project's own
   tooling config. Both are needed; they protect different things.
+- Claude cannot see its own session ID or the clock. `session_start.sh`
+  injects both via `additionalContext` at session start, and CLAUDE.md
+  tells Claude to use them (and `date` for timestamps) instead of guessing.
+- The Stop hook's retry guard (`stop_hook_active`) means a block fires once
+  per turn; Claude can ignore it on the retry. Treat the hook as a strong
+  nudge, not a hard guarantee.
+- Hook commands use `$CLAUDE_PROJECT_DIR` so they work regardless of the
+  directory Claude is currently in.
 - **Enforcement lives on `Stop`, not `SessionEnd`.** `Stop` fires at the end
   of *every response turn*, not just when a session truly ends — and it's
   the only one of the two that can actually block anything. `SessionEnd`

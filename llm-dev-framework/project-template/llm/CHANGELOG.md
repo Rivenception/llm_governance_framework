@@ -1,5 +1,5 @@
 # Changelog
-Prose history of logical changes. Append-only, newest at top.
+Prose history of logical changes. Add-only, newest at top.
 
 ## [2026-07-29 16:35] Switch auth to JWT refresh-token flow
 Session: sess_2026-07-29_02

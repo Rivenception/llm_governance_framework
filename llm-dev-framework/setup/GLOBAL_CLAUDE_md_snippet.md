@@ -9,7 +9,8 @@ for the template if not already present, or check for a docs/llm-setup.md /
 STARTUP_CHECKLIST.md in the repo).
 
 Core files: llm/PROJECT_STATE.md, llm/CHANGELOG.md, llm/CHANGES.jsonl,
-llm/DECISIONS.md, llm/ARCHITECTURE.md, llm/TODO.md.
+llm/DECISIONS.md, llm/ARCHITECTURE.md, llm/TODO.md, llm/KNOWN_ISSUES.md,
+llm/SESSIONS.jsonl (written by the SessionEnd hook).
 
 Full format lives in the project's own CLAUDE.md once created — read that
 first if present. Never skip updating llm/PROJECT_STATE.md before ending

@@ -10,6 +10,7 @@ Run through this before (or right at) the start of real work on a new repo.
 - [ ] `llm/ARCHITECTURE.md` exists
 - [ ] `llm/TODO.md` exists
 - [ ] `llm/KNOWN_ISSUES.md` exists
+- [ ] `llm/SESSIONS.jsonl` exists (or let the SessionEnd hook create it)
 If missing, copy from `project-template/llm/` in this framework, or ask
 Claude: "set up the llm/ change-tracking folder from my standard template."
 
@@ -26,8 +27,9 @@ Claude: "set up the llm/ change-tracking folder from my standard template."
 
 ## 3. Confirm hooks are wired up
 - [ ] `.claude/settings.json` exists in this repo (not just globally)
-- [ ] `.claude/hooks/check_project_state.sh`, `check_precompact.sh`, and
-      `log_session_end.sh` are all present
+- [ ] `.claude/hooks/session_start.sh`, `check_project_state.sh`,
+      `check_precompact.sh`, and `log_session_end.sh` are all present
+- [ ] `jq` is installed (`jq --version`) — hooks fail visibly without it
 - [ ] Scripts are executable: `chmod +x .claude/hooks/*.sh`
 - [ ] Quick test: end a turn without changing PROJECT_STATE.md's content
       and confirm the Stop hook actually blocks it
