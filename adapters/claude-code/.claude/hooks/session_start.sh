@@ -4,9 +4,15 @@
 # both in CHANGELOG / CHANGES / DECISIONS entries -- without this it would
 # guess. Fires on startup, resume, clear, and compact.
 
-if ! command -v jq >/dev/null 2>&1; then
-  echo "session_start.sh: jq is not installed; session ID and datetime cannot be injected. Install jq (see setup guide)." >&2
-  exit 1
+source "$(dirname "$0")/lib.sh"
+require_jq "session_start.sh"
+
+# First session in this project: record the current PROJECT_STATE.md as the
+# baseline, so the Stop hook blocks if it is left unchanged after real work
+# (otherwise a blank template would pass on its first check).
+if [ ! -f "$HASH_FILE" ] && [ -f "$STATE_FILE" ]; then
+  mkdir -p "$STATE_DIR"
+  state_hash > "$HASH_FILE" 2>/dev/null
 fi
 
 INPUT=$(cat)

@@ -46,10 +46,12 @@ are the source of truth for behavior and for the `llm/` record formats.
 @llm/framework/llm-records.md
 
 ## Claude Code enforcement
-- A Stop hook checks that `llm/PROJECT_STATE.md`'s content actually changed
-  before a turn can end, so treat updating it as non-optional. Stop fires
-  at the end of every response turn, not only at session end, so don't be
-  surprised if this check runs frequently.
+- If you modify any project file (anything outside `llm/` and `.claude/`),
+  a Stop hook will block the turn from ending until
+  `llm/PROJECT_STATE.md`'s content has actually changed, so treat
+  updating it as non-optional. Turns that only answer questions or only
+  touch `llm/` are not blocked. The hook can't see file changes made via
+  the Bash tool, so update PROJECT_STATE.md for those too.
 - Never put secrets, tokens, or credentials in `.claude/settings.json` —
   it's committed to the repo. Put them in `.claude/settings.local.json`
   instead, and before writing to that file, confirm

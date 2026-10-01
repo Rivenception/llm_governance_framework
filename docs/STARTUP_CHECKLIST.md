@@ -28,12 +28,14 @@ Claude: "set up the llm/ change-tracking folder from my standard template."
 
 ## 3. Confirm hooks are wired up
 - [ ] `.claude/settings.json` exists in this repo (not just globally)
-- [ ] `.claude/hooks/session_start.sh`, `check_project_state.sh`,
-      `check_precompact.sh`, and `log_session_end.sh` are all present
+- [ ] `.claude/hooks/lib.sh`, `session_start.sh`, `mark_dirty.sh`,
+      `check_project_state.sh`, `check_precompact.sh`, and
+      `log_session_end.sh` are all present
 - [ ] `jq` is installed (`jq --version`) — hooks fail visibly without it
 - [ ] Scripts are executable: `chmod +x .claude/hooks/*.sh`
-- [ ] Quick test: end a turn without changing PROJECT_STATE.md's content
-      and confirm the Stop hook actually blocks it
+- [ ] Quick test: ask Claude to edit any source file, then confirm it is
+      blocked from finishing the turn until PROJECT_STATE.md really
+      changes. A pure question turn should NOT be blocked
 - [ ] Quick test: run `/exit` and confirm a line was appended to
       `llm/SESSIONS.jsonl`
 

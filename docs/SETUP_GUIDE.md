@@ -16,12 +16,14 @@ and enforcement hooks so the record can't be silently skipped.
 | `templates/llm/` | Blank skeletons of the `llm/` files; includes the standing `[framework]` note in `KNOWN_ISSUES.md` |
 | `examples/llm/` | A populated sample (fictional Node/Express project) showing the formats in use |
 | `adapters/claude-code/CLAUDE.md` | Project instructions file: project-specific sections to fill in, plus `@imports` of the core files |
-| `adapters/claude-code/.claude/settings.json` | Wires up the SessionStart, Stop, PreCompact, and SessionEnd hooks |
+| `adapters/claude-code/.claude/settings.json` | Wires up the SessionStart, PostToolUse, Stop, PreCompact, and SessionEnd hooks |
 | `adapters/claude-code/.claude/hooks/session_start.sh` | Injects the session ID and datetime into Claude's context so llm/ entries use real values |
-| `adapters/claude-code/.claude/hooks/check_project_state.sh` | Blocks session end if PROJECT_STATE.md's content wasn't actually changed |
+| `adapters/claude-code/.claude/hooks/mark_dirty.sh` | PostToolUse: flags the session when a file outside `llm/` and `.claude/` is edited |
+| `adapters/claude-code/.claude/hooks/check_project_state.sh` | Stop: if the session is flagged, blocks until PROJECT_STATE.md's content actually changes |
+| `adapters/claude-code/.claude/hooks/lib.sh` | Shared helpers (jq check, sha256, path handling) sourced by the other hooks |
 | `adapters/claude-code/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
 | `adapters/claude-code/.claude/hooks/log_session_end.sh` | Advisory logger: appends to llm/SESSIONS.jsonl on real session end |
-| `adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the Stop hook's local hash file |
+| `adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the hooks' local state dir |
 | `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit); empty in this pass |
 | `docs/GLOBAL_CLAUDE_md_snippet.md` | Paste into `~/.claude/CLAUDE.md` once; makes every project aware of the convention |
 | `docs/STARTUP_CHECKLIST.md` | Run through when starting (or auditing) a project |
@@ -121,6 +123,19 @@ There's no timeout — sessions don't expire from inactivity. Ending one is alwa
   versions have had it fail to fire reliably on every exit path. So
   `SessionEnd` is used here purely to log the boundary to
   `llm/SESSIONS.jsonl` — the actual safety net is still `Stop`.
+- **Enforcement only applies to turns that changed project files.** A
+  PostToolUse hook (`mark_dirty.sh`) drops a marker in
+  `.claude/hooks/.state/` when Edit/Write/MultiEdit/NotebookEdit touches a
+  file outside `llm/` and `.claude/`. The Stop hook does nothing on turns
+  without the marker, so Q&A turns and `llm/`-only turns pass freely. The
+  marker is cleared only once PROJECT_STATE.md has really changed, so a
+  block that Claude skips via the retry guard persists to the next turn.
+  **Known gap:** changes made through the Bash tool (`sed -i`, scripts,
+  git operations) are not detected, so a turn that only changes files
+  that way won't be flagged.
+- `SessionStart` records a baseline hash of PROJECT_STATE.md the first
+  time it runs in a project, so a blank template left unchanged after
+  real work is blocked like any other unchanged state.
 - Because `Stop` fires so often, the check can't just be "was the file
   touched recently" — that would trivially pass forever after the first
   edit, including from the hook's own auto-stamp step. Instead,
