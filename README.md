@@ -18,7 +18,7 @@ everything Claude Code-specific lives in `adapters/claude-code/`.
 | `templates/llm/` | Blank `llm/` record files to drop into a project |
 | `examples/llm/` | A populated sample showing the formats in use |
 | `sandbox/` | Optional container layer (devcontainer, firewall); scaffold, see its README |
-| `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit) |
+| `skills/` | The plugin's skills: `init`, `adopt`, `update` (`audit` planned) |
 | `docs/` | Setup guide, walkthrough, startup checklist, global snippet |
 
 ## Quick start: Claude Code plugin
@@ -36,13 +36,36 @@ Then, from your project root in Claude Code:
 - `/llm-governance:adopt` for an existing project: scans the codebase
   read-only, installs the framework without overwriting anything, and drafts
   `ARCHITECTURE.md` and `PROJECT_STATE.md` marked unconfirmed for you to review
-
-- `/llm-governance:update` after the plugin is updated: refreshes the
-  framework's hooks, rules and `CLAUDE.md` block to the new version. Files you
-  edited are reported as conflicts and never overwritten.
+- `/llm-governance:update` after the plugin is updated (see below): refreshes
+  the framework's hooks, rules and `CLAUDE.md` block to the new version. Files
+  you edited are reported as conflicts and never overwritten.
 
 All three preview first, and the real change asks for your approval. Add
-`--sandbox` to also install the dev container config.
+`--sandbox` to `init` or `adopt` to also install the dev container config.
+
+### Updating
+
+Updating has two parts: get the new plugin version, then bring each project up
+to it.
+
+1. Refresh the marketplace, then update the plugin, then restart Claude Code:
+
+   ```
+   claude plugin marketplace update llm-governance
+   claude plugin update llm-governance@llm-governance
+   ```
+
+   Run both commands. `plugin update` on its own can report "already at the
+   latest version" because it works from the cached marketplace catalog.
+
+2. In each project, run `/llm-governance:update`. It shows what changed in the
+   new version (from `CHANGELOG.md`), previews the plan, and asks before
+   writing. Project records (`llm/*.md`) are never touched.
+
+Projects installed by 0.1.0 have no install record, so the first update
+reports any framework file that differs as a conflict ("baseline unknown")
+rather than guessing. Accept the plugin's version for each file and later
+updates are exact.
 
 ## Quick start: manual copy (new project)
 
