@@ -18,7 +18,7 @@ everything Claude Code-specific lives in `adapters/claude-code/`.
 | `templates/llm/` | Blank `llm/` record files to drop into a project |
 | `examples/llm/` | A populated sample showing the formats in use |
 | `sandbox/` | Optional container layer (devcontainer, firewall); scaffold, see its README |
-| `skills/` | The plugin's skills: `init`, `adopt`, `update` (`audit` planned) |
+| `skills/` | The plugin's skills: `init`, `adopt`, `update`, `audit` |
 | `docs/` | Setup guide, walkthrough, startup checklist, global snippet |
 
 ## Quick start: Claude Code plugin
@@ -40,7 +40,13 @@ Then, from your project root in Claude Code:
   the framework's hooks, rules and `CLAUDE.md` block to the new version. Files
   you edited are reported as conflicts and never overwritten.
 
-All three preview first, and the real change asks for your approval. Add
+- `/llm-governance:audit` any time: a read-only health check. It verifies the
+  files, imports, hooks, settings, secrets hygiene, version and record formats,
+  and runs the project's own hooks in a temporary copy to prove enforcement
+  actually works in your environment.
+
+`init`, `adopt` and `update` preview first, and the real change asks for your
+approval. `audit` changes nothing. Add
 `--sandbox` to `init` or `adopt` to also install the dev container config.
 
 ### Updating

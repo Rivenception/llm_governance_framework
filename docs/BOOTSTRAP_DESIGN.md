@@ -110,9 +110,20 @@ Brings the framework-owned files up to the installed plugin version.
   `CLAUDE.md` sections). Settings hook entries that a release renames are not
   auto-removed (WARN only). Releases are described in the repo's `CHANGELOG.md`.
 
-### `audit` (later)
-Automates `docs/STARTUP_CHECKLIST.md`: files present, imports resolve, hooks
-executable, `jq` present, `.gitignore` entries, `settings.json` valid.
+### `audit`
+`skills/audit/scripts/audit.sh [--json] [--no-deep] <project>`: read-only, exit
+0 (no FAIL), 1 (usage/not installed), 2 (FAIL present). Checks tooling (`jq`,
+a hash tool), records, `llm/framework`, `CLAUDE.md` imports/markers/placeholders,
+hook scripts (present, valid bash, executable), `settings.json` (valid, every
+framework event registered, no references to missing scripts), secrets hygiene
+(`settings.local.json` and hook state git-ignored and untracked), version vs the
+plugin, edited framework files (via MANIFEST), record health (stamp, DRAFT
+markers, newest-first CHANGELOG, `CHANGES.jsonl` shape, KNOWN_ISSUES statuses),
+and git (repo present, add-only history). The deep check runs the project's own
+hooks in a temp copy: SessionStart injects the session ID, an edit marks the
+turn dirty, Stop blocks an unrecorded change, releases once PROJECT_STATE
+changes, and a question-only turn passes. Windows note: `jq.exe` emits CRLF, so
+`read` loops over `jq -r` output must strip `` (`$(...)` already does).
 
 ## Prototype findings (2026-10-07)
 A minimal plugin (`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`
