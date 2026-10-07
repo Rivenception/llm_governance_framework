@@ -1,0 +1,5 @@
+# Claude Code — personal/local settings, may contain secrets
+.claude/settings.local.json
+
+# Hook local state (machine-specific, never commit)
+.claude/hooks/.state/
