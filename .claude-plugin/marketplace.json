@@ -1,0 +1,14 @@
+{
+  "name": "llm-governance",
+  "description": "LLM governance framework installer",
+  "owner": {
+    "name": "Rivenception"
+  },
+  "plugins": [
+    {
+      "name": "llm-governance",
+      "source": "./",
+      "description": "Installs the LLM governance framework into new and existing projects."
+    }
+  ]
+}

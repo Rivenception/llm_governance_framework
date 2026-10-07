@@ -1,0 +1,9 @@
+{
+  "name": "llm-governance",
+  "version": "0.0.1",
+  "description": "Installs the LLM governance framework (rules, llm/ records, enforcement hooks) into new and existing projects.",
+  "author": {
+    "name": "Rivenception"
+  },
+  "repository": "https://github.com/Rivenception/llm_governance_framework"
+}

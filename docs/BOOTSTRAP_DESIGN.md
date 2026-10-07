@@ -47,8 +47,8 @@ skills/
 adapters/ core/ templates/ sandbox/   payload the skills copy from
 ```
 
-Skills should be user-invoked only, since they write files. Skills reach the
-payload through the plugin root path.
+Skills should be user-invoked only, since they write files. Each skill keeps
+its deterministic logic in `skills/<name>/scripts/` (see prototype findings).
 
 ## Skills
 ### `init` (new or empty project)
@@ -92,19 +92,38 @@ touches project records (`llm/*.md` other than `llm/framework/`).
 Automates `docs/STARTUP_CHECKLIST.md`: files present, imports resolve, hooks
 executable, `jq` present, `.gitignore` entries, `settings.json` valid.
 
-## Open questions (verify while prototyping)
-1. Can a marketplace entry use the repo root as the plugin (`"source": "./"`),
-   or must the plugin live in a subfolder?
-2. Exact way a skill references plugin-bundled files. The docs confirm
-   `${CLAUDE_PLUGIN_ROOT}` for hook commands; the equivalent for skill text
-   needs checking.
-3. How to mark a skill user-invoked only (frontmatter field name).
-4. Should `init` and `adopt` be one skill that detects the situation?
-5. Sandbox: an `--sandbox` option on `init`/`adopt`, or a separate skill?
-6. Windows: hooks need bash and `jq`; should `audit` check for them and
+## Prototype findings (2026-10-07)
+A minimal plugin (`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`
+and a stub `skills/init/`) was built and run in the dev container with real
+`claude -p` sessions. Answers to the original open questions:
+
+| Question | Answer |
+|---|---|
+| Can the repo root be the plugin? | **Yes.** `claude plugin validate` passes, a marketplace entry with `"source": "./"` is accepted, and add + install + run works from a local-path marketplace. |
+| How does a skill reference bundled files? | `${CLAUDE_PLUGIN_ROOT}` and `${CLAUDE_SKILL_DIR}` are substituted in the skill text. Neither is set in the Bash environment, so scripts must be passed paths or derive their location from `$0`. |
+| How to make a skill user-invoked only? | `disable-model-invocation: true`. The skill registers as `/llm-governance:init`. (That Claude will not auto-invoke it was not tested.) |
+| Can skills read plugin files outside the project? | **Yes** with the Read tool (allowed with `allowed-tools: Read`). |
+| Can skills use `!` shell injection on the plugin? | **No.** It is limited to the session's working directories, and a blocked injection aborts the whole skill. Do not use it. |
+
+**Design consequence:** skills should be thin wrappers around bundled,
+deterministic scripts (`skills/<name>/scripts/*.sh`), pre-approved with
+`allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/<script> *)`, plus Claude's
+judgment for the parts that need it (drafting `ARCHITECTURE.md`, resolving
+merge conflicts with the user). The same scripts can later back a standalone
+`install.sh` with no duplicated logic.
+
+Not yet verified: installing from a git-hosted marketplace (a local-path
+marketplace is read in place, so the plugin cache copy was not what ran);
+`update` flows; Windows hosts without bash.
+
+## Open questions
+1. Should `init` and `adopt` be one skill that detects the situation?
+2. Sandbox: an `--sandbox` option on `init`/`adopt`, or a separate skill?
+3. Windows: hooks need bash and `jq`; should `audit` check for them and
    explain the fix?
-7. Dogfooding: this repo should adopt its own framework (it has no `llm/`
+4. Dogfooding: this repo should adopt its own framework (it has no `llm/`
    folder yet).
+5. License: none chosen yet; needed before publishing the marketplace.
 
 ## Test plan
 Run in the dev container against scratch projects, using real Claude Code
@@ -118,8 +137,7 @@ sessions as in the hook test:
   retry)
 
 ## Next steps
-1. Settle the open questions above by building a minimal plugin that only
-   loads and lists one skill.
-2. Build `init`, test it on an empty directory.
+1. ~~Minimal plugin to settle the layout questions~~ (done, see findings).
+2. Build the `init` script and skill, test it on an empty directory.
 3. Build `adopt`, test it on the existing-project scenarios.
 4. Then `update`, `audit`, and the sandbox option.
