@@ -103,9 +103,10 @@ Then fill in the project sections of the copied `CLAUDE.md`. See
 [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for details and
 [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) for the step-by-step version.
 
-Bootstrapping into an existing project (merging with an existing
-`CLAUDE.md`, `.claude/settings.json` and `.gitignore`) is not automated yet;
-merge by hand for now.
+For an existing project that already has its own `CLAUDE.md`,
+`.claude/settings.json` or `.gitignore`, use the plugin's `/llm-governance:adopt`
+(above): it merges instead of overwriting. Copying by hand is meant for new
+projects.
 
 ## Contributing
 
