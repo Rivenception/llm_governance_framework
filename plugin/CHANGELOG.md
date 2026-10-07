@@ -11,6 +11,7 @@ the plugin's. Newest first.
   can adopt the framework like any other project. No change to the skills, the
   installed files, or how you install and update.
 
+## 0.3.0
 - **New `audit` skill.** Read-only health check of the framework in a project
   (files, imports, hooks, settings, secrets hygiene, version, record formats,
   add-only history) plus a functional test that runs the project's own hooks in
