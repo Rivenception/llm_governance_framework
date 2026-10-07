@@ -17,6 +17,7 @@ everything Claude Code-specific lives in `adapters/claude-code/`.
 | `adapters/claude-code/` | Claude Code adapter: `CLAUDE.md`, hooks, settings, `.gitignore` |
 | `templates/llm/` | Blank `llm/` record files to drop into a project |
 | `examples/llm/` | A populated sample showing the formats in use |
+| `sandbox/` | Optional container layer (devcontainer, firewall); scaffold, see its README |
 | `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit) |
 | `docs/` | Setup guide, walkthrough, startup checklist, global snippet |
 

@@ -24,6 +24,7 @@ and enforcement hooks so the record can't be silently skipped.
 | `adapters/claude-code/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
 | `adapters/claude-code/.claude/hooks/log_session_end.sh` | Advisory logger: appends to llm/SESSIONS.jsonl on real session end |
 | `adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the hooks' local state dir |
+| `sandbox/` | Optional container module: working `devcontainer.json`; `Dockerfile` and `init-firewall.sh` are empty placeholders. See `sandbox/README.md` |
 | `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit); empty in this pass |
 | `docs/GLOBAL_CLAUDE_md_snippet.md` | Paste into `~/.claude/CLAUDE.md` once; makes every project aware of the convention |
 | `docs/STARTUP_CHECKLIST.md` | Run through when starting (or auditing) a project |

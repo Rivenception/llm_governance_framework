@@ -1,0 +1,8 @@
+# Outbound domains the sandbox may reach once init-firewall.sh is implemented.
+# One domain per line; lines starting with # are comments.
+# Everything not listed is denied (default deny). Not wired up yet.
+#
+# Planned baseline (to be confirmed against Anthropic's network docs):
+#   - Claude API and authentication endpoints
+#   - Package registries the project needs (e.g. registry.npmjs.org)
+#   - GitHub (git over HTTPS)
