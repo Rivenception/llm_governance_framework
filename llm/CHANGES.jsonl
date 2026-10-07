@@ -43,3 +43,12 @@
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"removed the verification item"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/CHANGELOG.md","type":"docs","summary":"verification entry with a timestamp correction"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged unreleased changes pushed under an unchanged version"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":".devcontainer/devcontainer.json","type":"config","summary":"tracked the repo dev container; renamed from the placeholder"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":".devcontainer/devcontainer-lock.json","type":"config","summary":"tracked the feature version lock file"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"README.md","type":"docs","summary":"technology badges; dev container in Contributing"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"CLAUDE.md","type":"docs","summary":"dev container command"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/ARCHITECTURE.md","type":"docs","summary":"dev container tracked; resolved open questions removed"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"refreshed after the owner review"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"closed drafts, dev container and badges items"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/DECISIONS.md","type":"docs","summary":"recorded tracking the dev container"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"examples/llm/TODO.md","type":"docs","summary":"removed the owner placeholder reminder, now done"}

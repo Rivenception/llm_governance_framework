@@ -11,6 +11,9 @@ v1, Claude Code only. This repo governs itself with the same framework.
 - Dependencies: none to install; needs bash, git, jq, and sha256sum or shasum.
 - Test: `bash tests/test_install.sh` (also `test_update.sh`, `test_scan.sh`,
   `test_audit.sh`). Minutes on Windows; seconds in the dev container.
+- Dev container: `.devcontainer/` (VS Code: "Dev Containers: Reopen in
+  Container") is the fast place to run the suites and try the skills with a
+  real Claude Code.
 - Validate: `claude plugin validate .` and `claude plugin validate ./plugin`
 - Try local plugin edits: `claude --plugin-dir ./plugin`
 - Refresh this repo's installed framework after changing `plugin/`:

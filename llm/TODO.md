@@ -3,8 +3,6 @@ Actual roadmap, prioritized. Not a scratchpad — if it's not worth doing,
 remove it rather than letting it sit.
 
 ## Now
-- [ ] Review and confirm the two adoption drafts, `llm/ARCHITECTURE.md` and `llm/PROJECT_STATE.md`, then delete their DRAFT lines.
-- [ ] Decide the root `.devcontainer/`: track it as this repo's own dev environment, or remove it. `plugin/sandbox/devcontainer.json` is the shippable copy (they differ only in the name).
 - [ ] Choose a license. There is none yet and it is needed before wider publishing.
 
 ## Next
@@ -17,7 +15,6 @@ remove it rather than letting it sit.
 - [ ] Test the skills in interactive (not `-p`) sessions and with plugin scopes other than `user`.
 
 ## Later / unscheduled
-- [ ] Add technology badges to the README (owner's reminder; it also sits in `examples/llm/TODO.md` as a placeholder, which can be removed from there now that this file exists).
 - [ ] LLM-agnostic support beyond Claude Code: add adapters next to `plugin/adapters/claude-code/`; `plugin/core/` is already tool-neutral.
 - [ ] Let projects record intentional edits to framework files (for example a `LOCAL_OVERRIDES` list) so `update` stops reporting them as conflicts every time.
 - [ ] `update`: remove settings hook entries that point at scripts a release renamed (today it only warns).

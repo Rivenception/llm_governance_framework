@@ -1,5 +1,3 @@
-> **DRAFT, unconfirmed.** Generated from a read-only scan on 2026-10-07 (session d1296834-35c7-4ccc-8532-1203a6fefad0). Verify before relying on it; delete this line once reviewed.
-
 # Architecture
 Static reference — how the system fits together. Update on structural
 change only, not per session.
@@ -32,7 +30,7 @@ This repo also adopts the framework itself (this file is part of that).
   sandbox threat model, global CLAUDE.md snippet.
 - `examples/llm/`: a populated sample of the `llm/` formats.
 - `tests/`: `test_install.sh`, `test_scan.sh`, `test_update.sh`, `test_audit.sh`.
-- `.devcontainer/`: untracked at adoption time; not part of this adoption.
+- `.devcontainer/`: this repo's own dev environment (Ubuntu base image, Node and Claude Code features, a per-project volume for the Claude login; `devcontainer-lock.json` pins the feature versions). It is where the test suites run in seconds. It is separate from the shippable `plugin/sandbox/devcontainer.json`, which will be hardened (firewall) for users.
 
 **Installed by this adoption (this repo as a consumer)**
 - `.claude/hooks/*.sh` and `.claude/settings.json`: hooks on SessionStart,
@@ -60,8 +58,5 @@ None observed from the files read. README says LLM-agnostic support is a
 long-term goal; today only the Claude Code adapter exists.
 
 ## Open questions
-- What is the intended role of `.devcontainer/` at the root versus `plugin/sandbox/`?
 - How the skill scripts behave in detail (only the dry-run output and tests'
   existence were observed, not the script sources).
-- Whether the `README.md` "not automated yet" note about bootstrapping into
-  existing projects is stale, since the `adopt` skill now does this.

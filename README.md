@@ -1,5 +1,13 @@
 # LLM Governance Framework
 
+![Bash](https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=white)
+![jq](https://img.shields.io/badge/jq-required-4B8BBE)
+![Markdown](https://img.shields.io/badge/Markdown-000000?logo=markdown&logoColor=white)
+![JSON](https://img.shields.io/badge/JSON-000000?logo=json&logoColor=white)
+![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?logo=anthropic&logoColor=white)
+![Dev Container](https://img.shields.io/badge/Dev%20Container-supported-2496ED?logo=docker&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-distribution-181717?logo=github&logoColor=white)
+
 A lightweight framework for working with AI coding assistants: a durable,
 human-readable record of what changed and why (`llm/`), behavioral rules
 that keep the human in charge of the decisions that matter, and hooks that
@@ -115,8 +123,10 @@ projects.
   it will not see your edits.
 - Run the test suites with `bash tests/test_install.sh` (and `test_scan.sh`,
   `test_update.sh`, `test_audit.sh`). They need `bash`, `git` and `jq`. On
-  Windows they are slow (minutes); on Linux, for example in the dev container,
-  they take seconds.
+  Windows they are slow (minutes); on Linux they take seconds. The repo ships a
+  dev container for this (`.devcontainer/`; in VS Code run "Dev Containers:
+  Reopen in Container"). It has bash, git, jq and Claude Code, and keeps your
+  Claude login in a per-project volume, not on the host.
 - Run `claude plugin validate .` and `claude plugin validate ./plugin` before
   releasing. A release needs a version bump in
   `plugin/.claude-plugin/plugin.json` (installed copies only update when the

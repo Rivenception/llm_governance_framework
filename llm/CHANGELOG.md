@@ -1,6 +1,11 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
+## [2026-10-07 21:07] Track the dev container; add README badges
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Started tracking .devcontainer/ (config plus the lock file VS Code generated), renamed from the placeholder "My Sandboxed Project", and documented it in the README Contributing section and CLAUDE.md commands. Added seven technology badges (Bash, jq, Markdown, JSON, Claude Code plugin, Dev Container, GitHub) under the README title; each URL was checked to return an SVG with its logo. The owner reviewed ARCHITECTURE.md and PROJECT_STATE.md and removed their DRAFT lines; refreshed both, removed the resolved TODO items (drafts, dev container, badges and the owner's placeholder line in examples/llm/TODO.md) and recorded the decision.
+Files: .devcontainer/devcontainer.json, .devcontainer/devcontainer-lock.json, README.md, CLAUDE.md, llm/ARCHITECTURE.md, llm/PROJECT_STATE.md, llm/TODO.md, llm/DECISIONS.md, examples/llm/TODO.md
+
 ## [2026-10-07 20:56] Verify the published 0.5.0 against real GitHub
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Installed 0.4.0 from GitHub, pushed the release (commit 5e7f539), then ran the two-step plugin update (0.4.0 -> 0.5.0) and /llm-governance:update on a project installed before the line-ending rules existed. The cache is lean and its scripts executable; update created .gitattributes with the LF rules (no CRs; git reports eol=lf), advanced the stamp and logged the update; the project's audit had 0 failures. Noted that the 0.4.0 on GitHub already contained the line-ending files because they were pushed before the version bump, so only installs made before those commits lack them. Cleaned up the container. Correction: the previous entry (Publish 0.5.0) is stamped 20:55 but was written at about 20:50 by adding minutes instead of reading the clock; it cannot be rewritten (add-only), so this entry's time comes from date -u and is after it.
