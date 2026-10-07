@@ -4,7 +4,7 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
-## Unreleased
+## 0.3.0
 - **New `audit` skill.** Read-only health check of the framework in a project
   (files, imports, hooks, settings, secrets hygiene, version, record formats,
   add-only history) plus a functional test that runs the project's own hooks in
