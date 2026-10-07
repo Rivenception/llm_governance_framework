@@ -30,6 +30,7 @@ printf '#!/bin/bash\n# hook that was removed in a later release\nexit 0\n' > "$O
 OLD_DEV_FILE="$OLD/sandbox/devcontainer.json"
 
 MID="$TMP/plugin-mid"; copy_repo "$MID" 0.1.5          # same payload as OLD, no block change
+PREV="$TMP/plugin-prev"; copy_repo "$PREV" 0.1.0       # identical payload to MID, older version
 
 NEW="$TMP/plugin-new"; copy_repo "$NEW" 0.2.0
 echo "NEW RULE LINE" >> "$NEW/core/RULES.md"
@@ -63,6 +64,7 @@ check "dry-run: writes nothing" "$H0" "$(treehash "$P")"
 check "dry-run: shows versions" yes "$(has "$OUT" 'installed 0.1.0, plugin 0.2.0')"
 check "dry-run: plans RULES.md update" yes "$(has "$OUT" 'UPDATE    llm/framework/RULES.md')"
 check "dry-run: plans removal" yes "$(has "$OUT" 'REMOVE    .claude/hooks/old_only.sh')"
+check "dry-run: plans the version stamp" yes "$(has "$OUT" 'UPDATE    llm/framework/VERSION (0.1.0 -> 0.2.0)')"
 
 up "$P"
 check "upgrade: exit 0" 0 "$RC"
@@ -183,7 +185,30 @@ oi "$P"
 up "$P"
 check "devcontainer: not created when never installed" no "$([ -e "$P/.devcontainer" ] && echo yes || echo no)"
 
-# ================= 8. refusals =================
+# ================= 8. the version stamp is part of the plan =================
+newproj p11
+bash "$PREV/skills/init/scripts/install.sh" "$P" >/dev/null 2>&1
+H11="$(treehash "$P")"
+OUT="$(bash "$MID/skills/update/scripts/update.sh" --dry-run "$P" 2>&1)"; RC=$?
+check "version-only dry run: exit 0" 0 "$RC"
+check "version-only dry run: lists the stamp" yes "$(has "$OUT" 'UPDATE    llm/framework/VERSION (0.1.0 -> 0.1.5)')"
+check "version-only dry run: it is the only change" yes "$(has "$OUT" 'created=0 updated=1 removed=0 merged=0')"
+check "version-only dry run: writes nothing" "$H11" "$(treehash "$P")"
+OUT="$(bash "$MID/skills/update/scripts/update.sh" "$P" 2>&1)"; RC=$?
+check "version-only real run: exit 0" 0 "$RC"
+check "version-only real run: stamp advanced" 0.1.5 "$(cat "$P/llm/framework/VERSION")"
+check "version-only real run: same summary as the plan" yes "$(has "$OUT" 'created=0 updated=1 removed=0 merged=0')"
+OUT="$(bash "$MID/skills/update/scripts/update.sh" "$P" 2>&1)"
+check "version-only: second run has nothing to do" yes "$(has "$OUT" 'updated=0 removed=0 merged=0')"
+check "version-only: second run lists no stamp change" no "$(has "$OUT" 'UPDATE    llm/framework/VERSION')"
+
+newproj p12
+oi "$P"; echo "# local edit" >> "$P/.claude/hooks/lib.sh"
+up --dry-run "$P"
+check "dry run with a conflict: says the stamp is held back" yes "$(has "$OUT" 'stays at 0.1.0 until every conflict is resolved')"
+check "dry run with a conflict: lists no stamp UPDATE" no "$(has "$OUT" 'UPDATE    llm/framework/VERSION')"
+
+# ================= 9. refusals =================
 newproj p9
 bash "$NEW/skills/init/scripts/install.sh" "$P" >/dev/null 2>&1
 OUT="$(bash "$OLD/skills/update/scripts/update.sh" "$P" 2>&1)"; RC=$?

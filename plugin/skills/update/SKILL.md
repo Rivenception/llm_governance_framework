@@ -42,8 +42,11 @@ files. Do not route around it.
    Then walk through the plan: UPDATE (unedited file refreshed), CREATE (new
    file), REMOVE (file the framework dropped), MERGE (settings/`.gitignore`
    additions or `CLAUDE.md` markers added), OK (already current), CONFLICT
-   (left untouched), WARN (needs a look). If nothing but OK lines, say the
-   project is up to date and stop.
+   (left untouched), WARN (needs a look). The plan also lists the version-stamp
+   change (`UPDATE llm/framework/VERSION`); when that is the only change, say
+   plainly that no file content differs and a real run just advances the stamp.
+   If there are only OK lines and the versions already match, say the project
+   is up to date and stop.
 
 3. **Confirm, then update.** Ask for a clear yes. Then run the same command
    without `--dry-run`; the user will get a permission prompt for it. If it is

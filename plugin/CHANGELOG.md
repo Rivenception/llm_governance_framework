@@ -4,6 +4,10 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
+## Unreleased
+- The `update` dry run now lists the version-stamp change, so an update where no
+  file content differs is visible in the plan.
+
 ## 0.4.0
 - **Repository layout.** The plugin now lives in `plugin/` in the repository
   (the marketplace entry points at `./plugin`), so the plugin cache no longer

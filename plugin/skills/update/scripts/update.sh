@@ -259,16 +259,17 @@ fi
 
 # ---- 7. version stamp and manifest ---------------------------------------------------------------
 
-if [ "$DRY" = 0 ] && [ "$ERRORS" = 0 ]; then
+if [ "$ERRORS" = 0 ]; then
+  # Reported in dry runs too, so a version-only update is visible in the plan.
   if [ "$CONFLICTS" = 0 ]; then
     if [ "$INSTALLED_VERSION" != "$NEW_VERSION" ]; then
-      printf '%s\n' "$NEW_VERSION" > "$TARGET/llm/framework/VERSION"
-      report UPDATE "llm/framework/VERSION ($INSTALLED_VERSION -> $NEW_VERSION)"
+      [ "$DRY" = 0 ] && printf '%s\n' "$NEW_VERSION" > "$TARGET/llm/framework/VERSION"
+      report UPDATE "llm/framework/VERSION ($INSTALLED_VERSION -> $NEW_VERSION)"; UPDATED=$((UPDATED+1))
     fi
   else
     report WARN "llm/framework/VERSION stays at $INSTALLED_VERSION until every conflict is resolved; re-run update afterwards"
   fi
-  manifest_write >/dev/null
+  [ "$DRY" = 0 ] && manifest_write >/dev/null
 fi
 
 echo
