@@ -24,9 +24,12 @@ govern everything below:
    The project's scope and stack is human-owned: you may propose it, but you
    never write it as settled.
 
-Only the scan and the `--dry-run` form of the installer are pre-approved. The
-real install and every file you write will trigger Claude Code's own
-permission prompt. That is the user's approval gate; do not route around it.
+Only the scan and the `--dry-run` form of the installer are pre-approved, and
+only during your first turn. So **run the scan and the dry run (steps 2 and 4)
+in that first turn, before asking the user anything**, and put any preflight
+question (uncommitted changes, wrong directory) together with the plan in one
+message. The real install and every file you write will trigger Claude Code's
+own permission prompt. That is the user's approval gate; do not route around it.
 
 ## Steps
 

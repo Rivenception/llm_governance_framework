@@ -17,7 +17,9 @@ idempotent and never overwrites project content. Your job is to run it
 safely, explain the result, and help with the parts that need judgment.
 Do not hand-copy framework files yourself.
 
-Only the `--dry-run` form of the script is pre-approved. The real install
+Only the `--dry-run` form of the script is pre-approved, and only during your
+first turn, so run the dry run (step 2) in that turn before asking the user
+anything, and put any question together with the plan. The real install
 will trigger Claude Code's own permission prompt, which is the user's
 approval gate for writing files. That is intentional; do not try to avoid
 it (for example by writing the files another way).
