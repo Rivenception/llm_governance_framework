@@ -112,9 +112,15 @@ judgment for the parts that need it (drafting `ARCHITECTURE.md`, resolving
 merge conflicts with the user). The same scripts can later back a standalone
 `install.sh` with no duplicated logic.
 
-Not yet verified: installing from a git-hosted marketplace (a local-path
-marketplace is read in place, so the plugin cache copy was not what ran);
-`update` flows; Windows hosts without bash.
+**Git-hosted install verified** (`claude plugin marketplace add
+Rivenception/llm_governance_framework`, then install): the plugin cache copy
+contains only tracked files (no `.git`, no untracked folders such as
+`.devcontainer/`), keeps the executable bit on scripts (needs `100755` in
+git; Windows checkouts record `100644`, so run
+`git update-index --chmod=+x` on new scripts), and the skill runs from the
+cache path with its script and `Read` access working.
+
+Not yet verified: `update` flows; Windows hosts without bash.
 
 ## Open questions
 1. Should `init` and `adopt` be one skill that detects the situation?
