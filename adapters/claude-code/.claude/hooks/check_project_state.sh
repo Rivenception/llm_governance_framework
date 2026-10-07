@@ -16,13 +16,11 @@ sha256 </dev/null >/dev/null || { echo "check_project_state.sh: PROJECT_STATE en
 
 INPUT=$(cat)
 
-# Avoid infinite loop: if this hook already fired once and blocked on this
-# turn, don't block again on the retry. The dirty marker is left in place,
-# so the next turn blocks again until PROJECT_STATE.md really changes.
+# True when this hook already blocked once on this turn (the retry). The
+# retry is still verified below: if Claude complied, we record it and clear
+# the marker. If it did not, we don't block a second time (avoids an
+# infinite loop) and leave the marker, so the next turn blocks again.
 STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
-if [ "$STOP_HOOK_ACTIVE" = "true" ]; then
-  exit 0
-fi
 
 # Nothing changed outside llm/ and .claude/ -> nothing to record.
 if [ ! -f "$DIRTY_FILE" ]; then
@@ -30,6 +28,7 @@ if [ ! -f "$DIRTY_FILE" ]; then
 fi
 
 if [ ! -f "$STATE_FILE" ]; then
+  [ "$STOP_HOOK_ACTIVE" = "true" ] && exit 0
   echo "Project files were modified, but llm/PROJECT_STATE.md does not exist. Create it before ending the turn." >&2
   exit 2
 fi
@@ -38,6 +37,7 @@ CURRENT_HASH=$(state_hash)
 LAST_HASH=$(cat "$HASH_FILE" 2>/dev/null || echo "")
 
 if [ "$CURRENT_HASH" = "$LAST_HASH" ]; then
+  [ "$STOP_HOOK_ACTIVE" = "true" ] && exit 0
   echo "Project files were modified this session, but llm/PROJECT_STATE.md's content hasn't changed since the last check. Update the status, what-just-happened, next-task, and risks sections with real content before ending." >&2
   exit 2
 fi
