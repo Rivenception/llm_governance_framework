@@ -154,5 +154,9 @@ sessions as in the hook test:
 2. ~~Build the `init` script and skill~~ (built: `skills/init/scripts/install.sh`,
    `skills/init/SKILL.md`, tests in `tests/test_install.sh`; verified live on an
    empty directory in the dev container).
-3. Build `adopt`, test it on the existing-project scenarios.
+3. ~~Build `adopt`~~ (built: `skills/adopt/SKILL.md`, read-only
+   `skills/adopt/scripts/scan.sh`, a wrapper that reuses `init`'s installer;
+   tests in `tests/test_scan.sh`; verified live on an existing Node project in
+   the dev container: no secrets written, user content preserved, drafts
+   hedged and marked unconfirmed, scope/stack proposed but not written).
 4. Then `update`, `audit`, and the sandbox option.

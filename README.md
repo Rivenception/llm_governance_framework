@@ -21,9 +21,26 @@ everything Claude Code-specific lives in `adapters/claude-code/`.
 | `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit) |
 | `docs/` | Setup guide, walkthrough, startup checklist, global snippet |
 
-## Quick start (new project, Claude Code)
+## Quick start: Claude Code plugin
 
-Requires `bash`, `jq`, and `sha256sum` or `shasum`.
+Requires `bash`, `jq`, and `sha256sum` or `shasum` wherever Claude Code runs.
+
+```
+claude plugin marketplace add Rivenception/llm_governance_framework
+claude plugin install llm-governance@llm-governance
+```
+
+Then, from your project root in Claude Code:
+
+- `/llm-governance:init` for a new project
+- `/llm-governance:adopt` for an existing project: scans the codebase
+  read-only, installs the framework without overwriting anything, and drafts
+  `ARCHITECTURE.md` and `PROJECT_STATE.md` marked unconfirmed for you to review
+
+Both preview first, and the real install asks for your approval. Add
+`--sandbox` to also install the dev container config.
+
+## Quick start: manual copy (new project)
 
 ```
 TARGET=path/to/your/project
