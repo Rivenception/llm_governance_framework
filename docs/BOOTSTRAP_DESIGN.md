@@ -120,6 +120,13 @@ git; Windows checkouts record `100644`, so run
 `git update-index --chmod=+x` on new scripts), and the skill runs from the
 cache path with its script and `Read` access working.
 
+**`allowed-tools` lasts only for the skill's own turn.** A skill that pauses
+for the user's confirmation and then writes in a later turn gets no
+pre-approval for the write. We use this deliberately: `init` pre-approves only
+`install.sh --dry-run *`, so the real install always triggers Claude Code's own
+permission prompt. That prompt is the approval gate for writing files,
+enforced by the tool rather than by the model's judgment.
+
 Not yet verified: `update` flows; Windows hosts without bash.
 
 ## Open questions
@@ -144,6 +151,8 @@ sessions as in the hook test:
 
 ## Next steps
 1. ~~Minimal plugin to settle the layout questions~~ (done, see findings).
-2. Build the `init` script and skill, test it on an empty directory.
+2. ~~Build the `init` script and skill~~ (built: `skills/init/scripts/install.sh`,
+   `skills/init/SKILL.md`, tests in `tests/test_install.sh`; verified live on an
+   empty directory in the dev container).
 3. Build `adopt`, test it on the existing-project scenarios.
 4. Then `update`, `audit`, and the sandbox option.
