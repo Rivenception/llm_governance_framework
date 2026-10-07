@@ -4,9 +4,17 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
-## Unreleased
+## 0.5.0
+- **Upgrading.** Update the plugin, then run `/llm-governance:update` in each
+  project: it adds the new `.gitattributes` rules below and moves the version
+  stamp. No framework file content changes in this release.
 - The `update` dry run now lists the version-stamp change, so an update where no
   file content differs is visible in the plan.
+- `update` now manages `.devcontainer/devcontainer.json` only when the install
+  record shows the framework installed it. A project's own dev container is
+  left alone (before, it was reported as a conflict that held back the version).
+  A very early install that added the dev container with no install record is
+  no longer refreshed by `update`.
 - **Windows line endings.** On Windows with `core.autocrlf=true`, a checkout
   turned the hook scripts into CRLF, which breaks them under Linux, WSL and dev
   containers. `init`, `adopt` and `update` now add LF rules for `.claude/hooks/`

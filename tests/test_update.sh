@@ -247,6 +247,17 @@ check "CRLF ignore files: second update merges nothing" yes "$(has "$OUT" 'merge
 check "CRLF .gitignore: no duplicate entry" 1 "$(tr -d '\r' < "$P/.gitignore" | grep -cxF '.claude/hooks/.state/')"
 check "CRLF .gitattributes: no duplicate rule" 1 "$(tr -d '\r' < "$P/.gitattributes" | grep -cxF 'llm/framework/** text eol=lf')"
 
+newproj p18     # unreadable plugin manifest: a clear error, not a misleading version message
+oi "$P"
+BROKEN="$TMP/plugin-broken"; copy_repo "$BROKEN" 0.2.0; echo '{ not json' > "$BROKEN/.claude-plugin/plugin.json"
+OUT="$(bash "$BROKEN/skills/update/scripts/update.sh" "$P" 2>&1)"; RC=$?
+check "unreadable plugin.json (update): exit 1" 1 "$RC"
+check "unreadable plugin.json (update): names the problem" yes "$(has "$OUT" 'cannot read the plugin version')"
+mkdir -p "$TMP/p18-new"
+OUT="$(bash "$BROKEN/skills/init/scripts/install.sh" "$TMP/p18-new" 2>&1)"; RC=$?
+check "unreadable plugin.json (install): exit 1" 1 "$RC"
+check "unreadable plugin.json (install): names the problem" yes "$(has "$OUT" 'cannot read the plugin version')"
+
 # ================= 10. refusals =================
 newproj p9
 bash "$NEW/skills/init/scripts/install.sh" "$P" >/dev/null 2>&1

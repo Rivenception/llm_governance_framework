@@ -1,35 +1,63 @@
 # Project instructions for Claude Code
 
 ## Project overview
-[One paragraph: what this project is, who it's for, current phase.]
+LLM Governance Framework: a Claude Code plugin (`llm-governance`) that installs
+and maintains, in any project, a durable record of AI-assisted work (`llm/`),
+behavioral rules that keep the human in charge of key decisions, and hooks that
+enforce the record-keeping. Four skills: `init`, `adopt`, `update`, `audit`.
+v1, Claude Code only. This repo governs itself with the same framework.
 
 ## Commands
-- Install: `[e.g. npm install]`
-- Test: `[e.g. npm test]`
-- Run: `[e.g. npm run dev]`
+- Dependencies: none to install; needs bash, git, jq, and sha256sum or shasum.
+- Test: `bash tests/test_install.sh` (also `test_update.sh`, `test_scan.sh`,
+  `test_audit.sh`). Minutes on Windows; seconds in the dev container.
+- Validate: `claude plugin validate .` and `claude plugin validate ./plugin`
+- Try local plugin edits: `claude --plugin-dir ./plugin`
+- Refresh this repo's installed framework after changing `plugin/`:
+  `bash plugin/skills/update/scripts/update.sh .`
 
 ## Project scope and stack
-[Fill in — this section is the human-owned source of truth for intent.
-Claude should treat it as fixed unless you explicitly change it here.]
+Human-owned: treat this section as settled. Any change to it goes through the
+approval process in Decision ownership.
 
-You can draft this section collaboratively with Claude during initial
-project setup — talk through target users, stack options, and scope in
-conversation before writing anything here. That's fine; it's normal
-brainstorming, not a violation of "human-owned." The rule kicks in once
-you've approved and written the actual content below: from that point,
-treat it as settled, and any further change goes through the same
-approval process as the rest of Decision ownership. If this section still
-has unfilled `[...]` placeholders, treat it as a draft in progress, not
-yet-locked policy.
+- Target users / purpose: developers using Claude Code who want governed,
+  auditable AI-assisted work in new and existing projects.
+- Explicitly out of scope:
+  - Adapters for assistants other than Claude Code in the current releases
+    (a long-term goal; `plugin/core/` is kept tool-neutral so it stays possible).
+  - A hosted service, web UI or GUI: the framework is files, scripts and a plugin.
+  - Replacing project judgment: it records and enforces process; it does not
+    decide architecture or approvals for the user.
+- Tech stack: Bash scripts, Markdown, JSON/JSONL. Needs bash, jq, git and a
+  sha256 tool. Claude Code plugin, marketplace and hook mechanisms; GitHub for
+  distribution. No language runtime. Not to be swapped (for example, no rewrite
+  of the scripts in Node or Python) without my approval.
+- Design conventions: scripts are deterministic and idempotent, never overwrite
+  project content, preview with `--dry-run`, and real changes go through the
+  permission prompt. LF line endings. Skills are thin wrappers around scripts.
+  `llm/` logs are add-only.
+- Architecture pattern: the plugin lives in `plugin/` (`core/` is tool-neutral,
+  `adapters/` is tool-specific, plus `templates/`, `skills/`, `sandbox/`). The
+  repo root is an ordinary governed project around it.
 
-- Target users / purpose: [...]
-- Explicitly out of scope: [...]
-- Tech stack (languages, frameworks, DB, infra): [...] — not to be swapped
-  without your explicit approval, regardless of how good an alternative
-  looks mid-task.
-- Design/UX conventions: [...]
-- Architecture pattern in use (e.g. layered, MVC, none-yet): [...] — don't
-  assume a pattern that wasn't specified here.
+## Working in this repo
+- Never hand-edit the installed copies at the root: `.claude/hooks/*`,
+  `llm/framework/*`, and the marked block in this file. Change the source under
+  `plugin/` and run update.
+- A release = bump `plugin/.claude-plugin/plugin.json`, add a
+  `plugin/CHANGELOG.md` entry, validate both manifests, run all four suites.
+  Pushing is the release: ask before it. Installed copies only update when the
+  version changes.
+- Record timestamps in UTC: use `date -u "+%Y-%m-%d %H:%M"` for `llm/` entries
+  in this repo. This overrides the machine-local `date` in the framework block
+  below until the convention is settled (see `llm/TODO.md`).
+- Windows gotchas: `jq.exe` emits CRLF (strip before `read` loops); `grep` on
+  Git Bash strips CRs (use `tr`/`cmp` to detect them); new scripts need
+  `git update-index --chmod=+x`.
+- Do not copy files from Anthropic's reference dev container (proprietary).
+- Also needs my approval: plugin layout, the install-record (MANIFEST) format,
+  the never-overwrite and merge guarantees, adding or removing a skill, hook
+  behavior, the license.
 
 <!-- llm-governance:begin (installed by the llm-governance plugin) -->
 ## Session ID and timestamps

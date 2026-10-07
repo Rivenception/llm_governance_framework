@@ -1,6 +1,21 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
+## [2026-10-07 20:55] Publish 0.5.0
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Committed the prepared release and pushed it to origin/master, which publishes plugin 0.5.0 (Windows line-ending protection, update dry-run version stamp, skill preflight fixes, update leaving a project's own .devcontainer alone, clearer error for an unreadable plugin.json). Records updated to say it is published and that verification against real GitHub is still pending.
+Files: plugin/.claude-plugin/plugin.json, plugin/CHANGELOG.md, CLAUDE.md, llm/PROJECT_STATE.md, llm/TODO.md, llm/CHANGELOG.md, llm/CHANGES.jsonl
+
+## [2026-10-07 20:48] Fill in the project sections of CLAUDE.md
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Replaced the template placeholders in the root CLAUDE.md with the project overview, commands, scope and stack (out of scope: other assistants in the current releases, a hosted service or UI, replacing project judgment) and a new "Working in this repo" section (never edit the installed copies, release checklist, UTC timestamps, Windows gotchas, approval list). The content was proposed in chat and the owner chose the out-of-scope items, the location of the repo rules and the UTC interim rule. The framework-managed block is untouched. Audit: 0 failures, 1 warning (drafts awaiting review).
+Files: CLAUDE.md, llm/DECISIONS.md, llm/TODO.md, llm/PROJECT_STATE.md
+
+## [2026-10-07 20:38] Prepare the 0.5.0 release
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Bumped the plugin to 0.5.0 and moved the Unreleased notes under it (added upgrade guidance and the update-vs-.devcontainer behavior change). Hardened install.sh and update.sh to fail with a clear message when plugin.json is unreadable (update previously said "newer than this plugin ()"). Made the repo-root install test assert "not refused" instead of a specific exit code, since the root is itself an adopted project. Ran the upgrade on this repo (update 0.4.0 -> 0.5.0) as a user would. Validation passes; install 75, update 110, scan 47, audit 79. Not committed or pushed; the release happens on push.
+Files: plugin/.claude-plugin/plugin.json, plugin/CHANGELOG.md, plugin/skills/init/scripts/install.sh, plugin/skills/update/scripts/update.sh, tests/test_install.sh, tests/test_update.sh, llm/framework/VERSION
+
 ## [2026-10-07 20:26] Fix CRLF payload leaking into projects' .gitattributes
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Right after pushing the LF-pinning work, found and reproduced that the plugin's own adapter .gitattributes, unpinned, arrives as CRLF on a Windows autocrlf clone and leaks CRs into projects and breaks idempotence. Line matching now ignores CRs on both sides, this repo's .gitattributes pins itself to LF, and test_install.sh has a regression scenario (75 checks). Logged in KNOWN_ISSUES as resolved. Uncommitted at the time of writing.

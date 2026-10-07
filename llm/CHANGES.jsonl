@@ -24,3 +24,18 @@
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"tests/test_install.sh","type":"test","summary":"regression scenario for a CRLF plugin payload"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged the CRLF payload leak as resolved"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"updated counts and recorded the CRLF payload fix"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"plugin/.claude-plugin/plugin.json","type":"config","summary":"version 0.4.0 -> 0.5.0"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"plugin/CHANGELOG.md","type":"docs","summary":"0.5.0 release notes with upgrade guidance"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"plugin/skills/update/scripts/update.sh","type":"bugfix","summary":"clear error when plugin.json is unreadable"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"plugin/skills/init/scripts/install.sh","type":"bugfix","summary":"clear error when plugin.json is unreadable"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"tests/test_install.sh","type":"test","summary":"repo root asserted not refused rather than a fixed exit code"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"tests/test_update.sh","type":"test","summary":"unreadable plugin.json scenarios"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/framework/VERSION","type":"config","summary":"0.4.0 -> 0.5.0 via the update script"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged the unreadable plugin.json error as resolved"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"release item reworded: prepared, not published"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"CLAUDE.md","type":"docs","summary":"filled in overview, commands, scope and stack, and Working in this repo"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/DECISIONS.md","type":"docs","summary":"recorded the interim UTC timestamp decision"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"removed the CLAUDE.md placeholder item; reworded the timestamp item"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"0.5.0 published; verification pending"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"release item became a verification item"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/CHANGELOG.md","type":"docs","summary":"publish entry"}

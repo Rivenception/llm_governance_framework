@@ -162,7 +162,9 @@ check "refuses to install into the plugin itself: exit 1" 1 "$RC"
 run "$PLUGIN/sandbox"
 check "refuses subdir of the plugin: exit 1" 1 "$RC"
 run --dry-run "$REPO"
-check "repo root (parent of the plugin) is an allowed target: exit 0" 0 "$RC"
+# The repo root may itself be an adopted project at some older framework version
+# (exit 2, conflicts), so assert only that it is not refused.
+check "repo root (parent of the plugin) is not refused" yes "$([ "$RC" != 1 ] && ! echo "$OUT" | grep -q 'refusing' && echo yes || echo no)"
 if ! PATH="/usr/bin:/bin" command -v jq >/dev/null 2>&1; then
   newproj nojq
   OUT="$(PATH="/usr/bin:/bin" bash "$INSTALL" "$P" 2>&1)"; RC=$?

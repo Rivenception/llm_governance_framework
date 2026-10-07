@@ -105,7 +105,11 @@ else
 fi
 [ "$DRY" = 1 ] && report INFO "dry run: nothing will be written"
 
-PLUGIN_VERSION="$(jq -r '.version' "$SRC/.claude-plugin/plugin.json")"
+PLUGIN_VERSION="$(jq -r '.version // empty' "$SRC/.claude-plugin/plugin.json" 2>/dev/null)"
+if [ -z "$PLUGIN_VERSION" ]; then
+  echo "install.sh: cannot read the plugin version from $SRC/.claude-plugin/plugin.json (missing, unreadable or invalid JSON)." >&2
+  exit 1
+fi
 if [ -f "$TARGET/llm/framework/VERSION" ] && [ "$(cat "$TARGET/llm/framework/VERSION")" != "$PLUGIN_VERSION" ]; then
   report WARN "this project has framework $(cat "$TARGET/llm/framework/VERSION") installed and the plugin is $PLUGIN_VERSION; use the update skill to upgrade"
 fi

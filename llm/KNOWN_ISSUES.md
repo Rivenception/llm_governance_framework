@@ -119,6 +119,13 @@ Files: plugin/skills/audit/scripts/audit.sh
 Description: grep on Windows Git Bash strips carriage returns before matching, so a grep-based CRLF check silently found nothing there. Found while verifying with core.autocrlf=true. Fixed (uncommitted): the check compares bytes (tr and cmp).
 Potential solution: Resolved. Avoid grep for CR detection on Windows.
 
+## [2026-10-07] Unreadable plugin.json gave a misleading "newer than this plugin" error
+Severity: low
+Status: resolved
+Files: plugin/skills/update/scripts/update.sh, plugin/skills/init/scripts/install.sh
+Description: If the plugin version could not be read (missing file, invalid JSON, or a jq that cannot open the path), update compared an empty version and refused with "newer than this plugin ()". Fixed (uncommitted): both scripts exit 1 with "cannot read the plugin version". Tests added.
+Potential solution: Resolved.
+
 ## [2026-10-07] A CRLF copy of the plugin's own .gitattributes payload leaked CRs into projects
 Severity: medium
 Status: resolved

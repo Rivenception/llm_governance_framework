@@ -66,7 +66,11 @@ if [ ! -f "$TARGET/llm/framework/VERSION" ] || [ ! -f "$TARGET/llm/framework/RUL
 fi
 
 INSTALLED_VERSION="$(tr -d '[:space:]' < "$TARGET/llm/framework/VERSION")"
-NEW_VERSION="$(jq -r '.version' "$SRC/.claude-plugin/plugin.json")"
+NEW_VERSION="$(jq -r '.version // empty' "$SRC/.claude-plugin/plugin.json" 2>/dev/null)"
+if [ -z "$NEW_VERSION" ]; then
+  echo "update.sh: cannot read the plugin version from $SRC/.claude-plugin/plugin.json (missing, unreadable or invalid JSON)." >&2
+  exit 1
+fi
 if [ "$INSTALLED_VERSION" != "$NEW_VERSION" ]; then
   lowest="$(printf '%s\n%s\n' "$INSTALLED_VERSION" "$NEW_VERSION" | sort -V | head -1)"
   if [ "$lowest" = "$NEW_VERSION" ]; then
