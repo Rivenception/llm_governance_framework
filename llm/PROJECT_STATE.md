@@ -4,13 +4,13 @@ Last updated: 2026-10-07 16:49 | Session: 115017e7-19b7-45eb-8573-d45f62282310
 
 ## Status
 Shell-script and Markdown project: the Claude Code plugin `llm-governance` (skills `init`, `adopt`, `update`, `audit`), in `plugin/`. The repo root is an ordinary project that governs itself with the same framework.
-- **Published on GitHub (origin/master):** plugin 0.5.0, released with the commit that pushed it: the Windows line-ending protection, the update dry-run version stamp, the skill preflight fixes, the `.devcontainer` fix for `update`, the filled-in root CLAUDE.md and the llm/ records. Earlier published: 0.4.0 (the `plugin/` layout).
-- **Not yet verified:** the published 0.5.0 against real GitHub (two-step plugin update, then `/llm-governance:update` on a project). Run that first.
+- **Published on GitHub (origin/master, 5e7f539):** plugin 0.5.0 (Windows line-ending protection, update dry-run version stamp, skill preflight fixes, `.devcontainer` fix for `update`, clearer unreadable-manifest error), the filled-in root CLAUDE.md and the llm/ records. Earlier published: 0.4.0 (the `plugin/` layout).
+- **Verified against real GitHub (2026-10-07):** `marketplace update` + `plugin update` took 0.4.0 to 0.5.0 (lean cache, executable scripts, CHANGELOG headings correct), and `/llm-governance:update` on a project installed before the rules created its `.gitattributes` with the LF rules (no CRs, `git check-attr` reports eol=lf), advanced the stamp and recorded the update; the audit of that project had 0 failures.
 - **Tests (Linux dev container):** install 75, update 110, scan 47, audit 79 all pass; `claude plugin validate` passes for the marketplace and the plugin. Windows runs the same suites in minutes.
 - **Audit of the repo root:** 0 failures, 1 warning (the two adoption drafts are unreviewed).
 
 ## What just happened (this session)
-- Published 0.5.0 (commit and push).
+- Published 0.5.0 (commit 5e7f539) and verified the upgrade path against real GitHub; test projects and the plugin install in the dev container were cleaned up.
 - Restructured the repo so the plugin lives in `plugin/` (released as 0.4.0); verified install, update and validation against the real GitHub repo.
 - Adopted the framework in this repo with the real `adopt` skill (dogfooding). That found and fixed bugs in the skills' preflight and `update` (see KNOWN_ISSUES).
 - Added Windows line-ending protection (LF rules in the project's .gitattributes via init/adopt/update; audit diagnoses CRLF) and several CRLF fixes; made the update dry run list the version stamp.
@@ -26,7 +26,7 @@ Shell-script and Markdown project: the Claude Code plugin `llm-governance` (skil
 
 ## Next recommended task
 1. Owner reviews the root CLAUDE.md and confirms the two drafts (delete their DRAFT lines).
-2. Verify the published 0.5.0 against real GitHub in the dev container: `claude plugin marketplace update llm-governance`, then `claude plugin update llm-governance@llm-governance`, then `/llm-governance:update` on a project installed at an older version; confirm the new `.gitattributes` rules arrive and the version stamp moves.
+2. Pick the next item from llm/TODO.md: sandbox module, license, framework-wide timestamp convention, CI, mid-session hook reload.
 3. Then see llm/TODO.md: sandbox module, license, timestamp convention, CI.
 
 ## Open risks / questions

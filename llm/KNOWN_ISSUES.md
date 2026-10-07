@@ -119,6 +119,13 @@ Files: plugin/skills/audit/scripts/audit.sh
 Description: grep on Windows Git Bash strips carriage returns before matching, so a grep-based CRLF check silently found nothing there. Found while verifying with core.autocrlf=true. Fixed (uncommitted): the check compares bytes (tr and cmp).
 Potential solution: Resolved. Avoid grep for CR detection on Windows.
 
+## [2026-10-07] Unreleased changes were pushed under an unchanged plugin version
+Severity: low
+Status: resolved
+Files: plugin/.claude-plugin/plugin.json, plugin/CHANGELOG.md
+Description: The line-ending work was pushed to master in commits 1c2d4c6 and 206caaa while plugin.json still said 0.4.0, so "0.4.0" meant two different payloads: installs made before those commits lack the .gitattributes files, installs made after have them, and Claude Code (which updates only on a version change) cannot tell them apart. Resolved by releasing 0.5.0, whose notes tell people to run update.
+Potential solution: Resolved. Going forward, either keep unreleased work off master until the version is bumped, or bump the version in the same commit as any change to what the plugin ships.
+
 ## [2026-10-07] Unreadable plugin.json gave a misleading "newer than this plugin" error
 Severity: low
 Status: resolved

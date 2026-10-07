@@ -8,7 +8,6 @@ remove it rather than letting it sit.
 - [ ] Choose a license. There is none yet and it is needed before wider publishing.
 
 ## Next
-- [ ] Verify the published 0.5.0 against real GitHub: the two-step plugin update, then `/llm-governance:update` on a project installed at an older version, confirming the new `.gitattributes` rules reach it. Install it in the dev container and clean up afterwards.
 - [ ] Sandbox module: implement `plugin/sandbox/init-firewall.sh` as an original implementation (default deny, editable `allowed-domains.txt`, no blanket outbound SSH, fail closed, self-test), fill `allowed-domains.txt`, write `docs/SANDBOX_THREAT_MODEL.md`, decide whether the `Dockerfile` is needed, and wire `--sandbox` through `init`/`adopt` end to end. Anthropic's reference container is proprietary, so none of its files may be copied.
 - [ ] Decide the timestamp convention for `llm/` entries framework-wide. This repo uses UTC as an interim rule (CLAUDE.md, DECISIONS). UTC (`date -u`) is the likely answer; the rules, the skills, the Stop hook's PROJECT_STATE stamp and the audit's newest-first check would then agree.
 - [ ] Look into the one-off garbled `.gitattributes` seen when `update` ran in the dev container against the Windows bind mount (not reproducible in four attempts). Appends are now single writes; consider also writing edits to user files via a temp file and rename.

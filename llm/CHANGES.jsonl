@@ -39,3 +39,7 @@
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"0.5.0 published; verification pending"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"release item became a verification item"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/CHANGELOG.md","type":"docs","summary":"publish entry"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"0.5.0 published and verified against real GitHub"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"removed the verification item"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/CHANGELOG.md","type":"docs","summary":"verification entry with a timestamp correction"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged unreleased changes pushed under an unchanged version"}

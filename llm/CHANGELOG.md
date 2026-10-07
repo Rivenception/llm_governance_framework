@@ -1,6 +1,11 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
+## [2026-10-07 20:56] Verify the published 0.5.0 against real GitHub
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Installed 0.4.0 from GitHub, pushed the release (commit 5e7f539), then ran the two-step plugin update (0.4.0 -> 0.5.0) and /llm-governance:update on a project installed before the line-ending rules existed. The cache is lean and its scripts executable; update created .gitattributes with the LF rules (no CRs; git reports eol=lf), advanced the stamp and logged the update; the project's audit had 0 failures. Noted that the 0.4.0 on GitHub already contained the line-ending files because they were pushed before the version bump, so only installs made before those commits lack them. Cleaned up the container. Correction: the previous entry (Publish 0.5.0) is stamped 20:55 but was written at about 20:50 by adding minutes instead of reading the clock; it cannot be rewritten (add-only), so this entry's time comes from date -u and is after it.
+Files: llm/PROJECT_STATE.md, llm/TODO.md, llm/CHANGELOG.md, llm/CHANGES.jsonl
+
 ## [2026-10-07 20:55] Publish 0.5.0
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Committed the prepared release and pushed it to origin/master, which publishes plugin 0.5.0 (Windows line-ending protection, update dry-run version stamp, skill preflight fixes, update leaving a project's own .devcontainer alone, clearer error for an unreadable plugin.json). Records updated to say it is published and that verification against real GitHub is still pending.
