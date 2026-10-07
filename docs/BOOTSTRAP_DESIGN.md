@@ -1,0 +1,125 @@
+# Bootstrap design
+
+**Status:** design draft, nothing built yet. Decisions below were made on
+2026-10-07.
+
+## Goal
+Let a user put this framework into a project in one step, whether the project
+is brand new or already has code, a `CLAUDE.md`, `.claude/settings.json` and a
+`.gitignore`. v1 targets Claude Code only; the structure must not block other
+tools later.
+
+## Decisions
+| # | Decision | Why |
+|---|---|---|
+| 1 | **Hooks are vendored into each project** (copied into the committed `.claude/` folder). | Anyone who clones gets enforcement with no plugin install, and it works offline. Plugin-provided hooks would silently not run for teammates who skipped the install, and would fire in every project. |
+| 2 | **v1 ships as a Claude Code plugin with `init` and `adopt` skills.** `update` and `audit` follow; `sandbox` after that. | Bootstrapping an existing project needs judgment (merging, drafting architecture), which a skill run by Claude does better than a script. |
+| 3 | **A plain `install.sh` comes later**, wrapping the same payload. | Covers non-plugin users, CI and other tools. Not in v1. |
+| 4 | **No git submodules for hooks.** | Settings paths would depend on submodule location, and a submodule update does not refresh copied files. May revisit for sharing `core/` with non-Claude adapters. |
+
+The plugin is the installer and updater; **the project owns its copy** of
+the framework files once installed.
+
+## What gets installed in a project
+| Source in this repo | Destination in the project |
+|---|---|
+| `adapters/claude-code/CLAUDE.md` | `CLAUDE.md` (merged if one exists) |
+| `adapters/claude-code/.claude/` (settings + hooks) | `.claude/` (settings merged, hooks copied) |
+| `adapters/claude-code/.gitignore` entries | appended to `.gitignore` |
+| `templates/llm/*` | `llm/` (never overwrites an existing file) |
+| `core/*.md` | `llm/framework/` |
+| (new) | `llm/framework/VERSION`, recording the framework version installed |
+| `sandbox/devcontainer.json` (optional) | `.devcontainer/devcontainer.json` |
+
+## Plugin layout (proposed)
+The repo root doubles as the plugin root, so the existing `adapters/`,
+`templates/`, `core/` and `sandbox/` folders are the payload and need no
+restructure:
+
+```
+.claude-plugin/plugin.json        name: llm-governance, version
+.claude-plugin/marketplace.json   makes this repo installable as a marketplace
+skills/
+  init/SKILL.md                   new project
+  adopt/SKILL.md                  existing project
+  update/SKILL.md                 later
+  audit/SKILL.md                  later
+adapters/ core/ templates/ sandbox/   payload the skills copy from
+```
+
+Skills should be user-invoked only, since they write files. Skills reach the
+payload through the plugin root path.
+
+## Skills
+### `init` (new or empty project)
+1. Confirm the target is the project root; recommend a clean git tree.
+2. Copy the payload per the table above.
+3. Walk the user through the `CLAUDE.md` placeholders (overview, commands,
+   scope and stack). Scope and stack stays human-owned: Claude may draft it
+   in conversation, but nothing is final until the user approves it.
+4. Run the startup-checklist verification (see `audit`).
+
+### `adopt` (existing project)
+1. **Preflight:** require a git repo with a clean tree for the files it will
+   touch, so every change is a reviewable diff.
+2. **Scan** the project (languages, package manifests, directory layout,
+   test and CI config) read-only.
+3. **Plan:** present a per-file plan: create, merge or skip. Ask before any
+   write.
+4. **Merge, never overwrite** (rules below).
+5. **Draft** `llm/ARCHITECTURE.md` and a first `llm/PROJECT_STATE.md` from the
+   scan. Every drafted section is marked `DRAFT: unconfirmed` until the user
+   approves it. Scope and stack in `CLAUDE.md` is only proposed, never
+   silently filled.
+6. Run `audit`; summarize what changed and what still needs the user.
+
+### Merge rules
+| File | Rule |
+|---|---|
+| `CLAUDE.md` exists | Append the "Framework rules (imported)" and enforcement sections; leave the user's content untouched. |
+| `.claude/settings.json` exists | JSON-merge the `hooks` entries by event; keep every existing hook and setting; never duplicate an entry on re-run. |
+| `.gitignore` exists | Append only the missing lines. |
+| `llm/<file>` exists | Skip it and report; never overwrite project records. |
+| Hook scripts exist (name clash) | Show a diff and ask. |
+| Everything | Idempotent: a second run produces no changes. |
+
+### `update` (later)
+Compare `llm/framework/VERSION` and the vendored hooks and core files against
+the installed plugin version; show a diff; apply only on approval. Never
+touches project records (`llm/*.md` other than `llm/framework/`).
+
+### `audit` (later)
+Automates `docs/STARTUP_CHECKLIST.md`: files present, imports resolve, hooks
+executable, `jq` present, `.gitignore` entries, `settings.json` valid.
+
+## Open questions (verify while prototyping)
+1. Can a marketplace entry use the repo root as the plugin (`"source": "./"`),
+   or must the plugin live in a subfolder?
+2. Exact way a skill references plugin-bundled files. The docs confirm
+   `${CLAUDE_PLUGIN_ROOT}` for hook commands; the equivalent for skill text
+   needs checking.
+3. How to mark a skill user-invoked only (frontmatter field name).
+4. Should `init` and `adopt` be one skill that detects the situation?
+5. Sandbox: an `--sandbox` option on `init`/`adopt`, or a separate skill?
+6. Windows: hooks need bash and `jq`; should `audit` check for them and
+   explain the fix?
+7. Dogfooding: this repo should adopt its own framework (it has no `llm/`
+   folder yet).
+
+## Test plan
+Run in the dev container against scratch projects, using real Claude Code
+sessions as in the hook test:
+- empty directory (`init`)
+- existing Node project with its own `CLAUDE.md`, `.claude/settings.json` and
+  `.gitignore` (`adopt`)
+- running either skill twice (idempotence: no diff the second time)
+- a project with a name clash on a hook script
+- after install, the hook behaviors still pass (Q&A turn, edit turn, block,
+  retry)
+
+## Next steps
+1. Settle the open questions above by building a minimal plugin that only
+   loads and lists one skill.
+2. Build `init`, test it on an empty directory.
+3. Build `adopt`, test it on the existing-project scenarios.
+4. Then `update`, `audit`, and the sandbox option.
