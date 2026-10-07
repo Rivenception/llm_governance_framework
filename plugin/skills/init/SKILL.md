@@ -25,8 +25,9 @@ it (for example by writing the files another way).
 ## Steps
 
 1. **Check the target.** `${CLAUDE_PROJECT_DIR}` must be the project root. If it
-   plainly is not (for example a home directory or the framework repo), stop
-   and ask the user.
+   plainly is not (for example a home directory or the plugin's own `plugin/`
+   directory), stop and ask the user. A repository that merely contains the
+   plugin source is a normal project.
 
 2. **Preview.** Run:
 

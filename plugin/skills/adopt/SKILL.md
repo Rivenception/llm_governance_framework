@@ -31,7 +31,9 @@ permission prompt. That is the user's approval gate; do not route around it.
 ## Steps
 
 1. **Preflight.** `${CLAUDE_PROJECT_DIR}` must be the project root. If it
-   plainly is not (home directory, the framework repo itself), stop and ask.
+   plainly is not (for example a home directory, or the plugin's own `plugin/`
+   directory), stop and ask. A repository that merely *contains* the plugin
+   source is a normal project and can adopt the framework (this repo does).
    If the project is not a git repository, or the scan shows uncommitted
    changes, strongly recommend committing (ideally on a new branch) first so
    the adoption is one reviewable diff. Proceed only if the user insists.
