@@ -12,6 +12,9 @@
 #   CONFLICT  existing file differs from the framework's; left untouched
 #   WARN      advisory
 #
+# To move an already-installed project to a newer plugin version, use the
+# update skill (update.sh) instead; install.sh reports differences as conflicts.
+#
 # Exit codes: 0 done, 1 error (nothing guaranteed), 2 done but conflicts remain.
 
 set -u
@@ -24,7 +27,7 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY=1 ;;
     --sandbox) SANDBOX=1 ;;
-    -h|--help) sed -n '2,17p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
     -*) echo "install.sh: unknown option: $arg" >&2; exit 1 ;;
     *) if [ -n "$TARGET" ]; then echo "install.sh: only one target directory allowed" >&2; exit 1; fi
        TARGET="$arg" ;;
@@ -43,7 +46,7 @@ fi
 # Plugin / repo root = three levels above this script (skills/init/scripts).
 SRC="$(cd "$(dirname "$0")/../../.." && pwd)"
 TARGET="$(cd "$TARGET" && pwd)"
-ADAPTER="$SRC/adapters/claude-code"
+source "$(dirname "$0")/lib.sh"
 
 case "$TARGET/" in
   "$SRC"/*) echo "install.sh: refusing to install into the framework itself ($SRC)" >&2; exit 1 ;;
@@ -59,6 +62,10 @@ for f in "$ADAPTER/CLAUDE.md" "$ADAPTER/.claude/settings.json" "$ADAPTER/.gitign
          "$SRC/core/RULES.md" "$SRC/core/llm-records.md" "$SRC/templates/llm" "$SRC/.claude-plugin/plugin.json"; do
   if [ ! -e "$f" ]; then echo "install.sh: framework payload missing: $f" >&2; exit 1; fi
 done
+if ! payload_block | grep -q .; then
+  echo "install.sh: framework block not found in adapter CLAUDE.md (expected a '$BLOCK_HEAD' heading)" >&2
+  exit 1
+fi
 
 CREATED=0; MERGED=0; OK=0; KEPT=0; CONFLICTS=0; ERRORS=0
 NEW_CLAUDE_MD=0
@@ -98,28 +105,27 @@ else
 fi
 [ "$DRY" = 1 ] && report INFO "dry run: nothing will be written"
 
+PLUGIN_VERSION="$(jq -r '.version' "$SRC/.claude-plugin/plugin.json")"
+if [ -f "$TARGET/llm/framework/VERSION" ] && [ "$(cat "$TARGET/llm/framework/VERSION")" != "$PLUGIN_VERSION" ]; then
+  report WARN "this project has framework $(cat "$TARGET/llm/framework/VERSION") installed and the plugin is $PLUGIN_VERSION; use the update skill to upgrade"
+fi
+
 # ---- 1. llm/ records (project-owned) ----------------------------------------
 
 for f in "$SRC"/templates/llm/*; do
   copy_file "$f" "llm/$(basename "$f")" record
 done
 
-# ---- 2. llm/framework (framework-owned) -------------------------------------
+# ---- 2. llm/framework + 3. hooks (framework-owned) ---------------------------
 
-for f in "$SRC"/core/*.md; do
-  copy_file "$f" "llm/framework/$(basename "$f")" managed
-done
+while IFS='|' read -r rel src exe; do
+  if [ "$exe" = 1 ]; then copy_file "$src" "$rel" managed exec; else copy_file "$src" "$rel" managed; fi
+done < <(managed_list)
 
 VERSION_TMP="$(mktemp)"
-jq -r '.version' "$SRC/.claude-plugin/plugin.json" > "$VERSION_TMP"
+printf '%s\n' "$PLUGIN_VERSION" > "$VERSION_TMP"
 copy_file "$VERSION_TMP" "llm/framework/VERSION" managed
 rm -f "$VERSION_TMP"
-
-# ---- 3. hooks (framework-owned) ----------------------------------------------
-
-for f in "$ADAPTER"/.claude/hooks/*.sh; do
-  copy_file "$f" ".claude/hooks/$(basename "$f")" managed exec
-done
 
 # ---- 4. .claude/settings.json (merge hook entries) ---------------------------
 
@@ -132,15 +138,7 @@ if [ ! -e "$SETTINGS_DEST" ]; then
 elif ! jq -e . "$SETTINGS_DEST" >/dev/null 2>&1; then
   report CONFLICT "$SETTINGS_REL (not valid JSON; left untouched, merge by hand)"; CONFLICTS=$((CONFLICTS+1))
 else
-  MERGED_JSON="$(jq --indent 2 --argjson s "$(cat "$SETTINGS_SRC")" '
-    .hooks //= {} |
-    reduce ($s.hooks | to_entries[]) as $ev (.;
-      reduce $ev.value[] as $entry (.;
-        if ((.hooks[$ev.key] // [])
-            | any(.[]; (.hooks // []) | any(.[]; .command as $c | ($entry.hooks | map(.command) | index($c)) != null)))
-        then .
-        else .hooks[$ev.key] = ((.hooks[$ev.key] // []) + [$entry])
-        end))' "$SETTINGS_DEST" 2>/dev/null)"
+  MERGED_JSON="$(settings_merged)"
   if [ -z "$MERGED_JSON" ]; then
     report CONFLICT "$SETTINGS_REL (unexpected hooks structure; left untouched, merge by hand)"; CONFLICTS=$((CONFLICTS+1))
   elif [ "$(jq -S . <<<"$MERGED_JSON")" = "$(jq -S . "$SETTINGS_DEST")" ]; then
@@ -153,33 +151,37 @@ else
   fi
 fi
 
-# ---- 5. CLAUDE.md -------------------------------------------------------------
+# ---- 5. CLAUDE.md ---------------------------------------------------------------
 
-CLAUDE_SRC="$ADAPTER/CLAUDE.md"
 CLAUDE_DEST="$TARGET/CLAUDE.md"
 IMPORT_MARK='@llm/framework/RULES.md'
 
 if [ ! -e "$CLAUDE_DEST" ]; then
-  copy_file "$CLAUDE_SRC" "CLAUDE.md" managed
+  # New project: placeholders first, then the framework block between markers
+  # so the update skill can find and refresh it later.
+  if [ "$DRY" = 0 ]; then
+    {
+      payload_head
+      printf '%s\n' "$BLOCK_BEGIN"
+      payload_block
+      printf '%s\n' "$BLOCK_END"
+    } > "$CLAUDE_DEST" || { report ERROR "CLAUDE.md"; ERRORS=$((ERRORS+1)); }
+  fi
+  report CREATE "CLAUDE.md"; CREATED=$((CREATED+1))
   NEW_CLAUDE_MD=1
 elif grep -qF "$IMPORT_MARK" "$CLAUDE_DEST"; then
   report OK "CLAUDE.md (framework sections already present)"; OK=$((OK+1))
 else
-  BLOCK="$(sed -n '/^## Session ID and timestamps/,$p' "$CLAUDE_SRC")"
-  if [ -z "$BLOCK" ]; then
-    report ERROR "CLAUDE.md (framework block not found in adapter template)"; ERRORS=$((ERRORS+1))
-  else
-    if [ "$DRY" = 0 ]; then
-      {
-        # make sure the existing file ends with a newline before appending
-        [ -n "$(tail -c1 "$CLAUDE_DEST")" ] && printf '\n'
-        printf '\n<!-- llm-governance:begin (installed by the llm-governance plugin) -->\n'
-        printf '%s\n' "$BLOCK"
-        printf '<!-- llm-governance:end -->\n'
-      } >> "$CLAUDE_DEST" || { report ERROR "CLAUDE.md"; ERRORS=$((ERRORS+1)); }
-    fi
-    report MERGE "CLAUDE.md (appended framework sections; your content untouched)"; MERGED=$((MERGED+1))
+  if [ "$DRY" = 0 ]; then
+    {
+      # make sure the existing file ends with a newline before appending
+      [ -n "$(tail -c1 "$CLAUDE_DEST")" ] && printf '\n'
+      printf '\n%s\n' "$BLOCK_BEGIN"
+      payload_block
+      printf '%s\n' "$BLOCK_END"
+    } >> "$CLAUDE_DEST" || { report ERROR "CLAUDE.md"; ERRORS=$((ERRORS+1)); }
   fi
+  report MERGE "CLAUDE.md (appended framework sections; your content untouched)"; MERGED=$((MERGED+1))
 fi
 
 # ---- 6. .gitignore --------------------------------------------------------------
@@ -188,11 +190,7 @@ GI_DEST="$TARGET/.gitignore"
 if [ ! -e "$GI_DEST" ]; then
   copy_file "$ADAPTER/.gitignore" ".gitignore" managed
 else
-  MISSING=""
-  while IFS= read -r line; do
-    case "$line" in ''|'#'*) continue ;; esac
-    grep -qxF "$line" "$GI_DEST" || MISSING="${MISSING}${line}"$'\n'
-  done < "$ADAPTER/.gitignore"
+  MISSING="$(gitignore_missing)"
   if [ -z "$MISSING" ]; then
     report OK ".gitignore (entries already present)"; OK=$((OK+1))
   else
@@ -200,7 +198,7 @@ else
       {
         [ -n "$(tail -c1 "$GI_DEST")" ] && printf '\n'
         printf '\n# llm-governance (hook state, local settings)\n'
-        printf '%s' "$MISSING"
+        printf '%s\n' "$MISSING"
       } >> "$GI_DEST" || { report ERROR ".gitignore"; ERRORS=$((ERRORS+1)); }
     fi
     report MERGE ".gitignore (added missing entries)"; MERGED=$((MERGED+1))
@@ -210,7 +208,13 @@ fi
 # ---- 7. optional sandbox ----------------------------------------------------------
 
 if [ "$SANDBOX" = 1 ]; then
-  copy_file "$SRC/sandbox/devcontainer.json" ".devcontainer/devcontainer.json" managed
+  copy_file "$SRC/sandbox/devcontainer.json" "$DEVCONTAINER_REL" managed
+fi
+
+# ---- 8. manifest (what is installed pristine; lets update tell edits from age) -----
+
+if [ "$DRY" = 0 ] && [ "$ERRORS" = 0 ]; then
+  if [ "$(manifest_write)" = changed ]; then report INFO "$MANIFEST_REL (record of installed framework files)"; fi
 fi
 
 # ---- summary ---------------------------------------------------------------------------

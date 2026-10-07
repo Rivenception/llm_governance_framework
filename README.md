@@ -37,7 +37,11 @@ Then, from your project root in Claude Code:
   read-only, installs the framework without overwriting anything, and drafts
   `ARCHITECTURE.md` and `PROJECT_STATE.md` marked unconfirmed for you to review
 
-Both preview first, and the real install asks for your approval. Add
+- `/llm-governance:update` after the plugin is updated: refreshes the
+  framework's hooks, rules and `CLAUDE.md` block to the new version. Files you
+  edited are reported as conflicts and never overwritten.
+
+All three preview first, and the real change asks for your approval. Add
 `--sandbox` to also install the dev container config.
 
 ## Quick start: manual copy (new project)

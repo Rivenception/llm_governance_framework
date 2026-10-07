@@ -83,10 +83,32 @@ its deterministic logic in `skills/<name>/scripts/` (see prototype findings).
 | Hook scripts exist (name clash) | Show a diff and ask. |
 | Everything | Idempotent: a second run produces no changes. |
 
-### `update` (later)
-Compare `llm/framework/VERSION` and the vendored hooks and core files against
-the installed plugin version; show a diff; apply only on approval. Never
-touches project records (`llm/*.md` other than `llm/framework/`).
+### `update`
+Brings the framework-owned files up to the installed plugin version.
+`skills/update/scripts/update.sh` (shared helpers in
+`skills/init/scripts/lib.sh`):
+- **Install record.** `init`/`adopt` write `llm/framework/MANIFEST`: the hash of
+  every framework-owned file as installed (and of the `CLAUDE.md` framework
+  block). A file is refreshed only if it still matches its recorded hash;
+  a file that differs from it was edited, so it is a CONFLICT and is left
+  untouched. A file with no recorded hash (older installs) is also a conflict
+  ("baseline unknown") rather than a guess.
+- **Scope.** `llm/framework/*`, `.claude/hooks/*`, the `CLAUDE.md` block between
+  its markers, missing hook entries in `.claude/settings.json`, missing
+  `.gitignore` lines, and `.devcontainer/devcontainer.json` where installed.
+  Records are never modified; records that are new in a release are created.
+  Files the framework dropped are removed if unedited, else left with a WARN.
+- **Conflicts.** `--accept-new <path>` replaces a conflicting file with the
+  plugin's version after the user decides (`CLAUDE.md` means the framework
+  block). `llm/framework/VERSION` only advances when no conflict remains, so
+  an unfinished update stays visible and can simply be re-run.
+- **Safety.** `--dry-run`; refuses downgrades, the framework repo itself, and
+  projects without the framework; idempotent. The skill pre-approves only the
+  dry run, so the real update goes through the permission prompt.
+- **Known limits.** A kept or hand-merged framework file is reported as a
+  conflict at every update (customizations belong in the project's own
+  `CLAUDE.md` sections). Settings hook entries that a release renames are not
+  auto-removed (WARN only). Releases are described in the repo's `CHANGELOG.md`.
 
 ### `audit` (later)
 Automates `docs/STARTUP_CHECKLIST.md`: files present, imports resolve, hooks
