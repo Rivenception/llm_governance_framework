@@ -1,9 +1,10 @@
 #!/bin/bash
-# Tests for skills/update/scripts/update.sh. Run: bash tests/test_update.sh
-# Simulates plugin releases by copying this repo and altering the copies:
+# Tests for plugin/skills/update/scripts/update.sh. Run: bash tests/test_update.sh
+# Simulates plugin releases by copying the plugin/ directory and altering the copies:
 #   OLD (0.1.0, plus a hook that later disappears) -> NEW (0.2.0, changed payload)
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
+PLUGIN="$REPO/plugin"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PASS=0; FAIL=0
@@ -19,7 +20,7 @@ treehash() { (cd "$1" && find . -type f -not -path './.git/*' | sort | while rea
 
 copy_repo() { # dest version
   mkdir -p "$1"
-  (cd "$REPO" && tar --exclude=.git --exclude=.devcontainer -cf - .) | (cd "$1" && tar -xf -)
+  (cd "$PLUGIN" && tar --exclude=.git -cf - .) | (cd "$1" && tar -xf -)
   jq --arg v "$2" '.version=$v' "$1/.claude-plugin/plugin.json" > "$1/pj.tmp" && mv "$1/pj.tmp" "$1/.claude-plugin/plugin.json"
 }
 
@@ -204,7 +205,7 @@ check "unknown option: exit 1" 1 "$RC"
 up "$TMP/does-not-exist"
 check "missing dir: exit 1" 1 "$RC"
 bash "$NEW/skills/update/scripts/update.sh" "$NEW" >/dev/null 2>&1
-check "refuses to touch the framework repo: exit 1" 1 "$?"
+check "refuses to touch the plugin directory: exit 1" 1 "$?"
 
 echo
 echo "passed=$PASS failed=$FAIL"

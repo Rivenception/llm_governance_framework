@@ -27,4 +27,5 @@ Code in VS Code). `Dockerfile` and `init-firewall.sh` are empty placeholders.
 ## Usage (manual, until the installer supports it)
 Copy `devcontainer.json` to `<project>/.devcontainer/devcontainer.json`, then
 run **Dev Containers: Reopen in Container** in VS Code. See
-`docs/SANDBOX_THREAT_MODEL.md` for what this does and does not protect.
+`docs/SANDBOX_THREAT_MODEL.md` in the project repository (it is not shipped
+inside the plugin) for what this does and does not protect.

@@ -1,11 +1,12 @@
 #!/bin/bash
-# Tests for skills/audit/scripts/audit.sh. Run: bash tests/test_audit.sh
+# Tests for plugin/skills/audit/scripts/audit.sh. Run: bash tests/test_audit.sh
 # Each scenario breaks several independent things at once, then asserts every
 # finding separately (an audit run is slow on Windows).
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-AUDIT="$REPO/skills/audit/scripts/audit.sh"
-INSTALL="$REPO/skills/init/scripts/install.sh"
+PLUGIN="$REPO/plugin"
+AUDIT="$PLUGIN/skills/audit/scripts/audit.sh"
+INSTALL="$PLUGIN/skills/init/scripts/install.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PASS=0; FAIL=0

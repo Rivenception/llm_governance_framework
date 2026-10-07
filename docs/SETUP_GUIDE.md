@@ -11,21 +11,21 @@ and enforcement hooks so the record can't be silently skipped.
 
 | Path | Purpose |
 |---|---|
-| `core/RULES.md` | Tool-agnostic behavioral rules (decision ownership, architectural change protocol, completion standard, uncertainty, sensitive data) |
-| `core/llm-records.md` | Tool-agnostic spec for the `llm/` record folder (formats, add-only rules) |
-| `templates/llm/` | Blank skeletons of the `llm/` files; includes the standing `[framework]` note in `KNOWN_ISSUES.md` |
+| `plugin/core/RULES.md` | Tool-agnostic behavioral rules (decision ownership, architectural change protocol, completion standard, uncertainty, sensitive data) |
+| `plugin/core/llm-records.md` | Tool-agnostic spec for the `llm/` record folder (formats, add-only rules) |
+| `plugin/templates/llm/` | Blank skeletons of the `llm/` files; includes the standing `[framework]` note in `KNOWN_ISSUES.md` |
 | `examples/llm/` | A populated sample (fictional Node/Express project) showing the formats in use |
-| `adapters/claude-code/CLAUDE.md` | Project instructions file: project-specific sections to fill in, plus `@imports` of the core files |
-| `adapters/claude-code/.claude/settings.json` | Wires up the SessionStart, PostToolUse, Stop, PreCompact, and SessionEnd hooks |
-| `adapters/claude-code/.claude/hooks/session_start.sh` | Injects the session ID and datetime into Claude's context so llm/ entries use real values |
-| `adapters/claude-code/.claude/hooks/mark_dirty.sh` | PostToolUse: flags the session when a file outside `llm/` and `.claude/` is edited |
-| `adapters/claude-code/.claude/hooks/check_project_state.sh` | Stop: if the session is flagged, blocks until PROJECT_STATE.md's content actually changes |
-| `adapters/claude-code/.claude/hooks/lib.sh` | Shared helpers (jq check, sha256, path handling) sourced by the other hooks |
-| `adapters/claude-code/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
-| `adapters/claude-code/.claude/hooks/log_session_end.sh` | Advisory logger: appends to llm/SESSIONS.jsonl on real session end |
-| `adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the hooks' local state dir |
-| `sandbox/` | Optional container module: working `devcontainer.json`; `Dockerfile` and `init-firewall.sh` are empty placeholders. See `sandbox/README.md` |
-| `skills/` | Reserved for reusable skills (bootstrap, adr, resume, audit); empty in this pass |
+| `plugin/adapters/claude-code/CLAUDE.md` | Project instructions file: project-specific sections to fill in, plus `@imports` of the core files |
+| `plugin/adapters/claude-code/.claude/settings.json` | Wires up the SessionStart, PostToolUse, Stop, PreCompact, and SessionEnd hooks |
+| `plugin/adapters/claude-code/.claude/hooks/session_start.sh` | Injects the session ID and datetime into Claude's context so llm/ entries use real values |
+| `plugin/adapters/claude-code/.claude/hooks/mark_dirty.sh` | PostToolUse: flags the session when a file outside `llm/` and `.claude/` is edited |
+| `plugin/adapters/claude-code/.claude/hooks/check_project_state.sh` | Stop: if the session is flagged, blocks until PROJECT_STATE.md's content actually changes |
+| `plugin/adapters/claude-code/.claude/hooks/lib.sh` | Shared helpers (jq check, sha256, path handling) sourced by the other hooks |
+| `plugin/adapters/claude-code/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
+| `plugin/adapters/claude-code/.claude/hooks/log_session_end.sh` | Advisory logger: appends to llm/SESSIONS.jsonl on real session end |
+| `plugin/adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the hooks' local state dir |
+| `plugin/sandbox/` | Optional container module: working `devcontainer.json`; `Dockerfile` and `init-firewall.sh` are empty placeholders. See `plugin/sandbox/README.md` |
+| `plugin/skills/` | The plugin's skills: `init`, `adopt`, `update`, `audit` (each a `SKILL.md` plus a deterministic script) |
 | `docs/GLOBAL_CLAUDE_md_snippet.md` | Paste into `~/.claude/CLAUDE.md` once; makes every project aware of the convention |
 | `docs/STARTUP_CHECKLIST.md` | Run through when starting (or auditing) a project |
 | `docs/WALKTHROUGH.md` | Step-by-step version of the setup below, with explicit commands |
@@ -42,17 +42,17 @@ and enforcement hooks so the record can't be silently skipped.
 Run these from the framework repo, with `TARGET` set to your project root:
 
 ```
-cp -r adapters/claude-code/. "$TARGET"/
+cp -r plugin/adapters/claude-code/. "$TARGET"/
 mkdir -p "$TARGET"/llm/framework
-cp -r templates/llm/. "$TARGET"/llm/
-cp core/*.md "$TARGET"/llm/framework/
+cp -r plugin/templates/llm/. "$TARGET"/llm/
+cp plugin/core/*.md "$TARGET"/llm/framework/
 chmod +x "$TARGET"/.claude/hooks/*.sh
 ```
 
 1. One-time: append `docs/GLOBAL_CLAUDE_md_snippet.md` to `~/.claude/CLAUDE.md`
 2. Run the commands above. If the project already has a `.gitignore`,
    `CLAUDE.md`, or `.claude/settings.json`, merge by hand instead of
-   overwriting (automated merging is planned, see `skills/`).
+   overwriting (or use the `adopt` skill, which merges for you).
 3. Fill in the project overview / commands / scope sections of the
    project's `CLAUDE.md`
 4. Run through `docs/STARTUP_CHECKLIST.md`

@@ -1,10 +1,11 @@
 #!/bin/bash
-# Tests for skills/adopt/scripts/scan.sh and the adopt installer wrapper.
+# Tests for plugin/skills/adopt/scripts/scan.sh and the adopt installer wrapper.
 # Run: bash tests/test_scan.sh   (needs bash, git, jq)
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-SCAN="$REPO/skills/adopt/scripts/scan.sh"
-WRAP="$REPO/skills/adopt/scripts/install.sh"
+PLUGIN="$REPO/plugin"
+SCAN="$PLUGIN/skills/adopt/scripts/scan.sh"
+WRAP="$PLUGIN/skills/adopt/scripts/install.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PASS=0; FAIL=0
@@ -77,7 +78,7 @@ check "scope: existing section detected" yes "$(has "$OUT" 'appears to have a sc
 
 # installed project: scan notices framework + hook events + llm/ contents
 I="$TMP/installed"; mkdir -p "$I"
-bash "$REPO/skills/init/scripts/install.sh" "$I" >/dev/null 2>&1
+bash "$PLUGIN/skills/init/scripts/install.sh" "$I" >/dev/null 2>&1
 OUT="$(bash "$SCAN" "$I" 2>&1)"
 check "installed: sees framework import" yes "$(has "$OUT" 'already imports the framework rules')"
 check "installed: lists hook events" yes "$(has "$OUT" 'hook events: PostToolUse, PreCompact, SessionEnd, SessionStart, Stop')"
@@ -122,7 +123,7 @@ bash "$WRAP" "$W" >/dev/null 2>&1; check "wrapper: real install exit 0" 0 "$?"
 check "wrapper: files installed" yes "$([ -f "$W/llm/framework/RULES.md" ] && echo yes || echo no)"
 echo "tampered" >> "$W/.claude/hooks/lib.sh"
 bash "$WRAP" "$W" >/dev/null 2>&1; check "wrapper: conflict exit code propagates (2)" 2 "$?"
-bash "$WRAP" "$REPO" >/dev/null 2>&1; check "wrapper: refuses framework repo (1)" 1 "$?"
+bash "$WRAP" "$PLUGIN" >/dev/null 2>&1; check "wrapper: refuses the plugin dir (1)" 1 "$?"
 
 echo
 echo "passed=$PASS failed=$FAIL"

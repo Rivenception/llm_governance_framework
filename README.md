@@ -6,20 +6,35 @@ that keep the human in charge of the decisions that matter, and hooks that
 enforce the record-keeping where the tool allows it.
 
 **Status:** v1. Built and tested for Claude Code only. The long-term goal is
-to be LLM-agnostic, which is why tool-neutral content lives in `core/` and
-everything Claude Code-specific lives in `adapters/claude-code/`.
+to be LLM-agnostic, which is why tool-neutral content lives in `plugin/core/`
+and everything Claude Code-specific lives in `plugin/adapters/claude-code/`.
 
 ## Repo map
 
+The repository root is an ordinary project. Everything that gets installed
+for users lives under `plugin/`; that folder is the Claude Code plugin, and
+it is all that ends up in a user's plugin cache.
+
+**The plugin (`plugin/`)**
+
 | Path | What it is |
 |---|---|
-| `core/` | Tool-agnostic rules (`RULES.md`) and the `llm/` record spec (`llm-records.md`) |
-| `adapters/claude-code/` | Claude Code adapter: `CLAUDE.md`, hooks, settings, `.gitignore` |
-| `templates/llm/` | Blank `llm/` record files to drop into a project |
-| `examples/llm/` | A populated sample showing the formats in use |
-| `sandbox/` | Optional container layer (devcontainer, firewall); scaffold, see its README |
-| `skills/` | The plugin's skills: `init`, `adopt`, `update`, `audit` |
-| `docs/` | Setup guide, walkthrough, startup checklist, global snippet |
+| `plugin/.claude-plugin/plugin.json` | Plugin manifest and version |
+| `plugin/skills/` | The skills: `init`, `adopt`, `update`, `audit` (each a `SKILL.md` plus a deterministic script) |
+| `plugin/core/` | Tool-agnostic rules (`RULES.md`) and the `llm/` record spec (`llm-records.md`) |
+| `plugin/adapters/claude-code/` | Claude Code adapter: `CLAUDE.md`, hooks, settings, `.gitignore` |
+| `plugin/templates/llm/` | Blank `llm/` record files to drop into a project |
+| `plugin/sandbox/` | Optional container layer (devcontainer, firewall); scaffold, see its README |
+| `plugin/CHANGELOG.md` | Release notes (the `update` skill reads this) |
+
+**The repository around it**
+
+| Path | What it is |
+|---|---|
+| `.claude-plugin/marketplace.json` | Makes this repo installable; points at `./plugin` |
+| `docs/` | Setup guide, walkthrough, startup checklist, design notes |
+| `examples/llm/` | A populated sample showing the `llm/` formats in use |
+| `tests/` | Test suites for the install, scan, update and audit scripts |
 
 ## Quick start: Claude Code plugin
 
@@ -77,10 +92,10 @@ updates are exact.
 
 ```
 TARGET=path/to/your/project
-cp -r adapters/claude-code/. "$TARGET"/
+cp -r plugin/adapters/claude-code/. "$TARGET"/
 mkdir -p "$TARGET"/llm/framework
-cp -r templates/llm/. "$TARGET"/llm/
-cp core/*.md "$TARGET"/llm/framework/
+cp -r plugin/templates/llm/. "$TARGET"/llm/
+cp plugin/core/*.md "$TARGET"/llm/framework/
 chmod +x "$TARGET"/.claude/hooks/*.sh
 ```
 
@@ -91,3 +106,19 @@ Then fill in the project sections of the copied `CLAUDE.md`. See
 Bootstrapping into an existing project (merging with an existing
 `CLAUDE.md`, `.claude/settings.json` and `.gitignore`) is not automated yet;
 merge by hand for now.
+
+## Contributing
+
+- Try local edits to the plugin without installing it:
+  `claude --plugin-dir ./plugin`. An installed plugin runs from its cache, so
+  it will not see your edits.
+- Run the test suites with `bash tests/test_install.sh` (and `test_scan.sh`,
+  `test_update.sh`, `test_audit.sh`). They need `bash`, `git` and `jq`. On
+  Windows they are slow (minutes); on Linux, for example in the dev container,
+  they take seconds.
+- Run `claude plugin validate .` and `claude plugin validate ./plugin` before
+  releasing. A release needs a version bump in
+  `plugin/.claude-plugin/plugin.json` (installed copies only update when the
+  version changes) and an entry in `plugin/CHANGELOG.md`.
+- New shell scripts need the executable bit recorded in git
+  (`git update-index --chmod=+x <file>`); Windows checkouts do not set it.

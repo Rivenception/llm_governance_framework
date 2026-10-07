@@ -1,9 +1,10 @@
 #!/bin/bash
-# Tests for skills/init/scripts/install.sh. Run: bash tests/test_install.sh
+# Tests for plugin/skills/init/scripts/install.sh. Run: bash tests/test_install.sh
 # Needs bash, jq, git, sha256sum/shasum. Uses a throwaway temp dir.
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-INSTALL="$REPO/skills/init/scripts/install.sh"
+PLUGIN="$REPO/plugin"
+INSTALL="$PLUGIN/skills/init/scripts/install.sh"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 PASS=0; FAIL=0
@@ -28,7 +29,7 @@ for f in CLAUDE.md .gitignore .claude/settings.json llm/PROJECT_STATE.md llm/KNO
   check "empty: has $f" yes "$([ -f "$P/$f" ] && echo yes || echo no)"
 done
 check "empty: hooks executable" yes "$([ -x "$P/.claude/hooks/check_project_state.sh" ] && echo yes || echo no)"
-check "empty: VERSION matches plugin.json" "$(jq -r .version "$REPO/.claude-plugin/plugin.json")" "$(cat "$P/llm/framework/VERSION")"
+check "empty: VERSION matches plugin.json" "$(jq -r .version "$PLUGIN/.claude-plugin/plugin.json")" "$(cat "$P/llm/framework/VERSION")"
 check "empty: imports resolve" yes "$(cd "$P" && grep -o '^@.*' CLAUDE.md | while read -r i; do [ -f "${i#@}" ] || echo MISSING; done | grep -q MISSING && echo no || echo yes)"
 check "empty: hooks are valid bash" yes "$(for h in "$P"/.claude/hooks/*.sh; do bash -n "$h" || echo BAD; done | grep -q BAD && echo no || echo yes)"
 check "empty: settings valid JSON with 5 events" 5 "$(jq '.hooks|keys|length' "$P/.claude/settings.json")"
@@ -126,10 +127,12 @@ run
 check "no args: exit 1" 1 "$RC"
 run --bogus "$TMP"
 check "unknown option: exit 1" 1 "$RC"
-run "$REPO"
-check "refuses to install into framework repo: exit 1" 1 "$RC"
-run "$REPO/docs"
-check "refuses subdir of framework repo: exit 1" 1 "$RC"
+run "$PLUGIN"
+check "refuses to install into the plugin itself: exit 1" 1 "$RC"
+run "$PLUGIN/sandbox"
+check "refuses subdir of the plugin: exit 1" 1 "$RC"
+run --dry-run "$REPO"
+check "repo root (parent of the plugin) is an allowed target: exit 0" 0 "$RC"
 if ! PATH="/usr/bin:/bin" command -v jq >/dev/null 2>&1; then
   newproj nojq
   OUT="$(PATH="/usr/bin:/bin" bash "$INSTALL" "$P" 2>&1)"; RC=$?

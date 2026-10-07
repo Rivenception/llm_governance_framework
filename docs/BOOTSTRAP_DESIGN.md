@@ -3,6 +3,10 @@
 **Status:** design draft, nothing built yet. Decisions below were made on
 2026-10-07.
 
+**Paths.** Paths in this document that start with `skills/`, `adapters/`, `core/`,
+`templates/` or `sandbox/` are relative to the plugin root (`plugin/` in this
+repository). `docs/`, `tests/` and `examples/` are at the repository root.
+
 ## Goal
 Let a user put this framework into a project in one step, whether the project
 is brand new or already has code, a `CLAUDE.md`, `.claude/settings.json` and a
@@ -21,34 +25,45 @@ The plugin is the installer and updater; **the project owns its copy** of
 the framework files once installed.
 
 ## What gets installed in a project
-| Source in this repo | Destination in the project |
+Sources are relative to the plugin root (`plugin/` in this repo).
+
+| Source | Destination in the project |
 |---|---|
 | `adapters/claude-code/CLAUDE.md` | `CLAUDE.md` (merged if one exists) |
 | `adapters/claude-code/.claude/` (settings + hooks) | `.claude/` (settings merged, hooks copied) |
 | `adapters/claude-code/.gitignore` entries | appended to `.gitignore` |
 | `templates/llm/*` | `llm/` (never overwrites an existing file) |
 | `core/*.md` | `llm/framework/` |
-| (new) | `llm/framework/VERSION`, recording the framework version installed |
+| (generated) | `llm/framework/VERSION` and `llm/framework/MANIFEST` (what was installed, as hashes) |
 | `sandbox/devcontainer.json` (optional) | `.devcontainer/devcontainer.json` |
 
-## Plugin layout (proposed)
-The repo root doubles as the plugin root, so the existing `adapters/`,
-`templates/`, `core/` and `sandbox/` folders are the payload and need no
-restructure:
+## Repo and plugin layout
+The plugin lives in `plugin/`; the repository root is an ordinary project.
 
 ```
-.claude-plugin/plugin.json        name: llm-governance, version
-.claude-plugin/marketplace.json   makes this repo installable as a marketplace
-skills/
-  init/SKILL.md                   new project
-  adopt/SKILL.md                  existing project
-  update/SKILL.md                 later
-  audit/SKILL.md                  later
-adapters/ core/ templates/ sandbox/   payload the skills copy from
+.claude-plugin/marketplace.json   makes the repo installable; source "./plugin"
+plugin/                           the plugin root: all a user's cache contains
+  .claude-plugin/plugin.json      name: llm-governance, version
+  skills/<init|adopt|update|audit>/SKILL.md + scripts/
+  adapters/ core/ templates/ sandbox/   payload the skills copy from
+  CHANGELOG.md                    read by the update skill, so it ships
+docs/ examples/ tests/ README.md  repo only; not shipped
+(after dogfooding) CLAUDE.md .claude/ llm/   the framework governing this repo
 ```
 
-Skills should be user-invoked only, since they write files. Each skill keeps
-its deterministic logic in `skills/<name>/scripts/` (see prototype findings).
+**Why a subfolder.** The first layout used the repo root as the plugin root. It
+worked, but it shipped `tests/`, `docs/` and `examples/` into every user's
+cache, and adopting the framework in this repo would have put a `CLAUDE.md`
+(which `claude plugin validate` warns about at a plugin root), `.claude/` and
+`llm/` inside the plugin too. With `plugin/` as the root, the repo root can
+adopt the framework like any project; the installer only refuses targets
+*inside* the plugin directory, so no override is needed. Verified in the dev
+container against a simulated remote: install and update from `./plugin`,
+cache contents, both manifests validating before and after adopting the root.
+A layout change alone does not reach installed copies; a version bump does.
+
+Skills are user-invoked only, since they write files. Each skill keeps its
+deterministic logic in `skills/<name>/scripts/` (see prototype findings).
 
 ## Skills
 ### `init` (new or empty project)
@@ -126,8 +141,8 @@ changes, and a question-only turn passes. Windows note: `jq.exe` emits CRLF, so
 `read` loops over `jq -r` output must strip `` (`$(...)` already does).
 
 ## Prototype findings (2026-10-07)
-A minimal plugin (`.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`
-and a stub `skills/init/`) was built and run in the dev container with real
+A minimal plugin (originally with the repo root as the plugin root; see the
+layout section above for the current structure) was built and run in the dev container with real
 `claude -p` sessions. Answers to the original open questions:
 
 | Question | Answer |

@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "llm-governance",
-      "source": "./",
+      "source": "./plugin",
       "description": "Installs the LLM governance framework into new and existing projects."
     }
   ]

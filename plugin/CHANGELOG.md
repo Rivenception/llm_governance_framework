@@ -4,7 +4,13 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
-## 0.3.0
+## 0.4.0
+- **Repository layout.** The plugin now lives in `plugin/` in the repository
+  (the marketplace entry points at `./plugin`), so the plugin cache no longer
+  includes the repo's tests, docs, examples or README, and the repository root
+  can adopt the framework like any other project. No change to the skills, the
+  installed files, or how you install and update.
+
 - **New `audit` skill.** Read-only health check of the framework in a project
   (files, imports, hooks, settings, secrets hygiene, version, record formats,
   add-only history) plus a functional test that runs the project's own hooks in

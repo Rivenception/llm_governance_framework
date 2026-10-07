@@ -11,7 +11,7 @@ Run through this before (or right at) the start of real work on a new repo.
 - [ ] `llm/TODO.md` exists
 - [ ] `llm/KNOWN_ISSUES.md` exists
 - [ ] `llm/SESSIONS.jsonl` exists (or let the SessionEnd hook create it)
-If missing, copy from `templates/llm/` in this framework, or ask
+If missing, copy from `plugin/templates/llm/` in this framework, or ask
 Claude: "set up the llm/ change-tracking folder from my standard template."
 
 ## 2. Confirm CLAUDE.md

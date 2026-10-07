@@ -36,10 +36,10 @@ your whole home directory is broader access than this step needs.
    `~/claude-templates/llm-governance-framework/`).
 2. From the framework repo, with `TARGET` set to your new project's root:
    ```
-   cp -r adapters/claude-code/. "$TARGET"/
+   cp -r plugin/adapters/claude-code/. "$TARGET"/
    mkdir -p "$TARGET"/llm/framework
-   cp -r templates/llm/. "$TARGET"/llm/
-   cp core/*.md "$TARGET"/llm/framework/
+   cp -r plugin/templates/llm/. "$TARGET"/llm/
+   cp plugin/core/*.md "$TARGET"/llm/framework/
    ```
 3. Confirm the copy landed correctly: `CLAUDE.md`, `.gitignore`, `.claude/`,
    and `llm/` (with `llm/framework/` inside) should now all be sitting at
@@ -67,7 +67,7 @@ personal data handling, record formats) live in `llm/framework/`.
 
 ## 3. The llm/ files start blank
 
-The `llm/` files copied from `templates/llm/` are empty skeletons, so
+The `llm/` files copied from `plugin/templates/llm/` are empty skeletons, so
 there is nothing to clear. `llm/KNOWN_ISSUES.md` ships with the
 `[framework]` entry and the note above it; keep those, they're permanent
 documentation about the framework itself. See `examples/llm/` for what
