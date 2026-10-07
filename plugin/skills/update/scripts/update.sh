@@ -5,7 +5,7 @@
 #
 # Only framework-owned files are touched: llm/framework/*, .claude/hooks/*,
 # the framework block in CLAUDE.md (between its markers), hook entries in
-# .claude/settings.json, missing .gitignore lines, and the optional
+# .claude/settings.json, missing .gitignore and .gitattributes lines, and the optional
 # .devcontainer/devcontainer.json. Project records (llm/*.md) are never
 # modified; records that are new in this version are created if missing.
 #
@@ -139,7 +139,10 @@ while IFS='|' read -r rel src exe; do
   process_file "$rel" "$src" "$exe"
 done < <(managed_list)
 
-if [ -e "$TARGET/$DEVCONTAINER_REL" ] || [ -n "$(manifest_get "$DEVCONTAINER_REL")" ]; then
+# The dev container config is managed only where the framework installed it
+# (the install record lists it). A project's own .devcontainer/ is never touched,
+# and an install old enough to have no record cannot be told apart from one.
+if [ -n "$(manifest_get "$DEVCONTAINER_REL")" ]; then
   process_file "$DEVCONTAINER_REL" "$SRC/sandbox/devcontainer.json" 0
 fi
 
@@ -249,12 +252,27 @@ if [ -e "$GI_DEST" ]; then
   MISSING="$(gitignore_missing)"
   if [ -n "$MISSING" ]; then
     if [ "$DRY" = 0 ]; then
-      { [ -n "$(tail -c1 "$GI_DEST")" ] && printf '\n'; printf '\n# llm-governance (hook state, local settings)\n'; printf '%s\n' "$MISSING"; } >> "$GI_DEST"
+      append_block "$GI_DEST" "$(printf '\n# llm-governance (hook state, local settings)\n%s\n' "$MISSING")"
     fi
     report MERGE ".gitignore (added missing entries)"; MERGED=$((MERGED+1))
   fi
 else
   do_copy "$ADAPTER/.gitignore" ".gitignore" 0 && { report CREATE ".gitignore"; CREATED=$((CREATED+1)); }
+fi
+
+# ---- 6b. .gitattributes (keep framework scripts LF on Windows checkouts) ----------------------
+
+GA_DEST="$TARGET/.gitattributes"
+if [ -e "$GA_DEST" ]; then
+  MISSING="$(gitattributes_missing)"
+  if [ -n "$MISSING" ]; then
+    if [ "$DRY" = 0 ]; then
+      append_block "$GA_DEST" "$(printf '\n# llm-governance (framework scripts and rules keep LF line endings)\n%s\n' "$MISSING")"
+    fi
+    report MERGE ".gitattributes (added LF rules for framework files)"; MERGED=$((MERGED+1))
+  fi
+else
+  do_copy "$ADAPTER/.gitattributes" ".gitattributes" 0 && { report CREATE ".gitattributes"; CREATED=$((CREATED+1)); }
 fi
 
 # ---- 7. version stamp and manifest ---------------------------------------------------------------

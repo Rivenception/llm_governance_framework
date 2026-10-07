@@ -117,7 +117,7 @@ bash "$SCAN" "$TMP/nope" >/dev/null 2>&1; check "bad dir: exit 1" 1 "$?"
 W="$TMP/wrap"; mkdir -p "$W"
 OUT="$(bash "$WRAP" --dry-run "$W" 2>&1)"; RC=$?
 check "wrapper: dry run exit 0" 0 "$RC"
-check "wrapper: plans 20 creates" yes "$(has "$OUT" 'created=20')"
+check "wrapper: plans 21 creates" yes "$(has "$OUT" 'created=21')"
 check "wrapper: dry run wrote nothing" 0 "$(ls -A "$W" | wc -l | tr -d ' ')"
 bash "$WRAP" "$W" >/dev/null 2>&1; check "wrapper: real install exit 0" 0 "$?"
 check "wrapper: files installed" yes "$([ -f "$W/llm/framework/RULES.md" ] && echo yes || echo no)"

@@ -7,6 +7,16 @@ the plugin's. Newest first.
 ## Unreleased
 - The `update` dry run now lists the version-stamp change, so an update where no
   file content differs is visible in the plan.
+- **Windows line endings.** On Windows with `core.autocrlf=true`, a checkout
+  turned the hook scripts into CRLF, which breaks them under Linux, WSL and dev
+  containers. `init`, `adopt` and `update` now add LF rules for `.claude/hooks/`
+  and `llm/framework/` to the project's `.gitattributes` (created or appended,
+  never overwritten). `audit` now names the real cause (CRLF) with the exact
+  fix, checks that the rules are in effect, and no longer mistakes a CRLF
+  `CLAUDE.md` for a missing import or an edited framework block.
+- The skills' preflight no longer treats a repository that merely contains the
+  plugin source as the plugin itself, and run their dry run before asking
+  questions (pre-approval lasts only for the skill's first turn).
 
 ## 0.4.0
 - **Repository layout.** The plugin now lives in `plugin/` in the repository

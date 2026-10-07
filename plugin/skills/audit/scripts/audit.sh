@@ -56,6 +56,9 @@ info() { add INFO "$1" "$2"; }
 HAVE_JQ=0; command -v jq >/dev/null 2>&1 && HAVE_JQ=1
 IS_GIT=0; git -C "$TARGET" rev-parse --is-inside-work-tree >/dev/null 2>&1 && IS_GIT=1
 T() { printf '%s/%s' "$TARGET" "$1"; }
+# True if the file contains carriage returns. Byte-exact on purpose: grep on
+# Windows Git Bash strips CRs before matching, so grep cannot be trusted here.
+has_cr() { ! tr -d '\r' < "$1" 2>/dev/null | cmp -s - "$1"; }
 
 # ---------------------------------------------------------------- tooling
 if [ "$HAVE_JQ" = 1 ]; then pass tooling "jq found"
@@ -93,7 +96,7 @@ if [ ! -f "$CM" ]; then
 else
   OKIMP=1
   for imp in '@llm/framework/RULES.md' '@llm/framework/llm-records.md'; do
-    if grep -qxF "$imp" "$CM"; then
+    if tr -d '\r' < "$CM" | grep -qxF "$imp"; then   # tolerate a CRLF checkout
       [ -f "$(T "${imp#@}")" ] || { fail claude-md "imports $imp but that file does not exist"; OKIMP=0; }
     else
       fail claude-md "does not import $imp (the rules would not be loaded)"; OKIMP=0
@@ -118,6 +121,11 @@ while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   p="$(T "$rel")"
   if [ ! -f "$p" ]; then fail hooks "$rel missing (run the update skill)"; BADHOOK=1; continue; fi
+  if has_cr "$p"; then
+    # Git Bash tolerates CRLF, but Linux, WSL and dev containers do not.
+    fail hooks "$rel has Windows (CRLF) line endings, which break bash under Linux, WSL and dev containers. Fix: sed -i 's/\\r\$//' $rel, and make sure .gitattributes pins it to LF (the update skill adds the rules)"
+    BADHOOK=1; continue
+  fi
   if ! bash -n "$p" 2>/dev/null; then fail hooks "$rel has a shell syntax error"; BADHOOK=1; fi
   if [ ! -x "$p" ]; then
     if [ "$IS_GIT" = 1 ] && git -C "$TARGET" ls-files -s -- "$rel" | grep -q '^100644'; then
@@ -170,6 +178,16 @@ if [ "$IS_GIT" = 1 ] && git -C "$TARGET" ls-files -- .claude/hooks/.state | grep
   fail secrets "hook state files are tracked in git (.claude/hooks/.state); untrack them"
 fi
 
+# ---------------------------------------------------------------- line endings
+if [ "$IS_GIT" = 1 ]; then
+  UNPINNED=""
+  for f in .claude/hooks/lib.sh llm/framework/RULES.md; do
+    git -C "$TARGET" check-attr eol -- "$f" 2>/dev/null | grep -q 'eol: lf' || UNPINNED="$UNPINNED $f"
+  done
+  if [ -z "$UNPINNED" ]; then pass line-endings "framework scripts and rules are pinned to LF by .gitattributes"
+  else warn line-endings "not pinned to LF:$UNPINNED. With core.autocrlf=true on Windows they can be checked out as CRLF, which breaks the hook scripts under Linux, WSL and dev containers (the update skill adds the .gitattributes rules)"; fi
+fi
+
 # ---------------------------------------------------------------- version / integrity
 PLUGIN_VERSION="$(jq -r '.version' "$SRC/.claude-plugin/plugin.json" 2>/dev/null)"
 if [ -n "$INSTALLED_VERSION" ] && [ -n "$PLUGIN_VERSION" ] && [ "$PLUGIN_VERSION" != null ]; then
@@ -185,9 +203,11 @@ if [ -f "$(T "$MANIFEST_REL")" ]; then
   while IFS='|' read -r rel src exe; do
     base="$(manifest_get "$rel")"; [ -z "$base" ] && continue
     [ -f "$(T "$rel")" ] || continue
-    [ "$(sha256_file "$(T "$rel")")" = "$base" ] || EDITED="$EDITED $rel"
+    if [ "$(sha256_file "$(T "$rel")")" != "$base" ]; then
+      if has_cr "$(T "$rel")"; then EDITED="$EDITED $rel(CRLF)"; else EDITED="$EDITED $rel"; fi
+    fi
   done < <(managed_list)
-  if [ -n "$EDITED" ]; then warn integrity "framework file(s) edited since install:$EDITED (the update skill will report them as conflicts)"
+  if [ -n "$EDITED" ]; then warn integrity "framework file(s) edited since install:$EDITED (the update skill will report them as conflicts; (CRLF) means the file has Windows line endings, which is the likely cause)"
   else pass integrity "framework files match the install record"; fi
   if [ -f "$CM" ] && has_markers; then
     base="$(manifest_get "CLAUDE.md#block")"

@@ -32,6 +32,7 @@ Sources are relative to the plugin root (`plugin/` in this repo).
 | `adapters/claude-code/CLAUDE.md` | `CLAUDE.md` (merged if one exists) |
 | `adapters/claude-code/.claude/` (settings + hooks) | `.claude/` (settings merged, hooks copied) |
 | `adapters/claude-code/.gitignore` entries | appended to `.gitignore` |
+| `adapters/claude-code/.gitattributes` entries | appended to `.gitattributes` (pins hooks and `llm/framework/` to LF) |
 | `templates/llm/*` | `llm/` (never overwrites an existing file) |
 | `core/*.md` | `llm/framework/` |
 | (generated) | `llm/framework/VERSION` and `llm/framework/MANIFEST` (what was installed, as hashes) |
@@ -94,6 +95,7 @@ deterministic logic in `skills/<name>/scripts/` (see prototype findings).
 | `CLAUDE.md` exists | Append the "Framework rules (imported)" and enforcement sections; leave the user's content untouched. |
 | `.claude/settings.json` exists | JSON-merge the `hooks` entries by event; keep every existing hook and setting; never duplicate an entry on re-run. |
 | `.gitignore` exists | Append only the missing lines. |
+| `.gitattributes` exists | Append only the missing LF rules. |
 | `llm/<file>` exists | Skip it and report; never overwrite project records. |
 | Hook scripts exist (name clash) | Show a diff and ask. |
 | Everything | Idempotent: a second run produces no changes. |
@@ -138,7 +140,7 @@ and git (repo present, add-only history). The deep check runs the project's own
 hooks in a temp copy: SessionStart injects the session ID, an edit marks the
 turn dirty, Stop blocks an unrecorded change, releases once PROJECT_STATE
 changes, and a question-only turn passes. Windows note: `jq.exe` emits CRLF, so
-`read` loops over `jq -r` output must strip `` (`$(...)` already does).
+`read` loops over `jq -r` output must strip `\r` (`$(...)` already does).
 
 ## Prototype findings (2026-10-07)
 A minimal plugin (originally with the repo root as the plugin root; see the

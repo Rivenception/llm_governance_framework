@@ -17,6 +17,7 @@ check() { # name expected actual
 }
 # lv LEVEL AREA SUBSTRING -> yes/no: a result line with that level/area containing the text
 lv() { printf '%s\n' "$OUT" | awk -v l="$1" -v a="$2" -v s="$3" '$1==l && $2==a && index($0,s) {f=1} END{print f?"yes":"no"}'; }
+has() { printf '%s' "$1" | grep -qF -- "$2" && echo yes || echo no; }
 sha() { if command -v sha256sum >/dev/null 2>&1; then sha256sum; else shasum -a 256; fi | awk '{print $1}'; }
 treehash() { (cd "$1" && find . -type f -not -path './.git/*' | sort | while read -r f; do echo "$f $(sha < "$f")"; done | sha); }
 aud() { OUT="$(bash "$AUDIT" "$@" 2>&1)"; RC=$?; }
@@ -44,6 +45,7 @@ check "healthy: imports PASS" yes "$(lv PASS claude-md 'imports the framework ru
 check "healthy: settings PASS" yes "$(lv PASS settings 'all framework hook events registered')"
 check "healthy: hooks PASS" yes "$(lv PASS hooks 'all 6 hook scripts')"
 check "healthy: version PASS" yes "$(lv PASS version 'matches the plugin')"
+check "healthy: line endings pinned" yes "$(lv PASS line-endings 'pinned to LF')"
 check "healthy: integrity PASS" yes "$(lv PASS integrity 'match the install record')"
 check "healthy: warns about placeholders" yes "$(lv WARN claude-md 'unfilled')"
 check "healthy: warns PROJECT_STATE never stamped" yes "$(lv WARN health 'never been stamped')"
@@ -97,6 +99,7 @@ echo '{"date":"2026-01-01","session":"s","file":"a","summary":"no type"}' >> llm
 echo '{"date":"2026-01-01","session":"s","file":"a","type":"weird","summary":"bad type"}' >> llm/CHANGES.jsonl
 printf '\n## [2026-01-01] x\nSeverity: low\nStatus: pending\n' >> llm/KNOWN_ISSUES.md
 sed -i '/hooks\/.state/d' .gitignore
+git rm -q --cached .gitattributes; rm -f .gitattributes   # git check-attr falls back to the index otherwise
 cd "$REPO" || exit 1
 aud --no-deep "$P"
 check "warns: exit 0 (warnings are not failures)" 0 "$RC"
@@ -112,7 +115,27 @@ check "warns: CHANGELOG order" yes "$(lv WARN health 'not newest-first')"
 check "warns: CHANGES missing key" yes "$(lv WARN health 'missing a required key')"
 check "warns: CHANGES bad type" yes "$(lv WARN health 'type outside')"
 check "warns: KNOWN_ISSUES status" yes "$(lv WARN health 'Status line')"
+check "warns: LF rules missing" yes "$(lv WARN line-endings 'not pinned to LF')"
 check "warns: state dir not ignored" yes "$(lv WARN secrets 'not git-ignored')"
+
+# ================= Windows (CRLF) line endings =================
+fresh crlf
+sed -i 's/$/\r/' .claude/hooks/lib.sh
+cd "$REPO" || exit 1
+aud --no-deep "$P"
+check "CRLF hook: FAIL names the real cause" yes "$(lv FAIL hooks 'lib.sh has Windows (CRLF) line endings')"
+check "CRLF hook: FAIL gives the fix" yes "$(has "$OUT" "sed -i 's/\\r\$//'")"
+check "CRLF hook: not reported as a generic syntax error" no "$(lv FAIL hooks 'syntax error')"
+check "CRLF hook: integrity warning marks it CRLF" yes "$(lv WARN integrity 'lib.sh(CRLF)')"
+check "CRLF hook: exit 2" 2 "$RC"
+
+fresh crlfmd
+sed -i 's/$/\r/' CLAUDE.md
+cd "$REPO" || exit 1
+aud --no-deep "$P"
+check "CRLF CLAUDE.md: imports still recognised" yes "$(lv PASS claude-md 'imports the framework rules')"
+check "CRLF CLAUDE.md: block not reported as edited" no "$(lv WARN integrity 'CLAUDE.md framework block was edited')"
+check "CRLF CLAUDE.md: still no FAIL" 0 "$(printf '%s\n' "$OUT" | grep -c '^FAIL')"
 
 # ================= integrity / version / stamp =================
 fresh integ

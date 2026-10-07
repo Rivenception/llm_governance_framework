@@ -208,7 +208,46 @@ up --dry-run "$P"
 check "dry run with a conflict: says the stamp is held back" yes "$(has "$OUT" 'stays at 0.1.0 until every conflict is resolved')"
 check "dry run with a conflict: lists no stamp UPDATE" no "$(has "$OUT" 'UPDATE    llm/framework/VERSION')"
 
-# ================= 9. refusals =================
+# ================= 9. .gitattributes LF rules, CRLF-tolerant CLAUDE.md block =================
+newproj p13     # installed before the rules existed: no .gitattributes at all
+oi "$P"; rm "$P/.gitattributes"
+up "$P"
+check "no .gitattributes: update creates it" yes "$([ -f "$P/.gitattributes" ] && echo yes || echo no)"
+check "no .gitattributes: reported as CREATE" yes "$(has "$OUT" 'CREATE    .gitattributes')"
+check "no .gitattributes: has the LF rules" yes "$(grep -qxF '.claude/hooks/*.sh text eol=lf' "$P/.gitattributes" && echo yes || echo no)"
+
+newproj p14     # user's own .gitattributes without the rules
+oi "$P"; printf '*.png binary' > "$P/.gitattributes"
+up "$P"
+check "user .gitattributes: reported as MERGE" yes "$(has "$OUT" 'MERGE     .gitattributes')"
+check "user .gitattributes: original line kept" yes "$(grep -qxF '*.png binary' "$P/.gitattributes" && echo yes || echo no)"
+check "user .gitattributes: LF rules appended" yes "$(grep -qxF 'llm/framework/** text eol=lf' "$P/.gitattributes" && echo yes || echo no)"
+up "$P"
+check "user .gitattributes: second run adds nothing" 1 "$(grep -cxF 'llm/framework/** text eol=lf' "$P/.gitattributes")"
+
+newproj p15     # Windows autocrlf checkout of CLAUDE.md: block must not read as "edited"
+oi "$P"; sed -i 's/$/\r/' "$P/CLAUDE.md"
+up "$P"
+check "CRLF CLAUDE.md: update is not a conflict (exit 0)" 0 "$RC"
+check "CRLF CLAUDE.md: block refreshed" yes "$(grep -qF 'new enforcement note in 0.2.0' "$P/CLAUDE.md" && echo yes || echo no)"
+
+newproj p16     # a project's own dev container is never the framework's business
+oi "$P"; mkdir -p "$P/.devcontainer"; echo '{"name":"mine"}' > "$P/.devcontainer/devcontainer.json"
+up "$P"
+check "own devcontainer: no conflict (exit 0)" 0 "$RC"
+check "own devcontainer: left untouched" '{"name":"mine"}' "$(cat "$P/.devcontainer/devcontainer.json")"
+check "own devcontainer: version still advances" 0.2.0 "$(cat "$P/llm/framework/VERSION")"
+check "own devcontainer: not mentioned in the plan" no "$(has "$OUT" 'devcontainer')"
+
+newproj p17     # Windows checkout: CRLF .gitignore/.gitattributes must not collect duplicates
+oi "$P"; sed -i 's/$/\r/' "$P/.gitignore" "$P/.gitattributes"
+up "$P"
+up "$P"
+check "CRLF ignore files: second update merges nothing" yes "$(has "$OUT" 'merged=0')"
+check "CRLF .gitignore: no duplicate entry" 1 "$(tr -d '\r' < "$P/.gitignore" | grep -cxF '.claude/hooks/.state/')"
+check "CRLF .gitattributes: no duplicate rule" 1 "$(tr -d '\r' < "$P/.gitattributes" | grep -cxF 'llm/framework/** text eol=lf')"
+
+# ================= 10. refusals =================
 newproj p9
 bash "$NEW/skills/init/scripts/install.sh" "$P" >/dev/null 2>&1
 OUT="$(bash "$OLD/skills/update/scripts/update.sh" "$P" 2>&1)"; RC=$?

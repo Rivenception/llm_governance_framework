@@ -1,2 +1,21 @@
 {"date":"2026-10-07","session":"d1296834-35c7-4ccc-8532-1203a6fefad0","file":"llm/ARCHITECTURE.md","type":"docs","summary":"Unconfirmed draft from read-only scan"}
 {"date":"2026-10-07","session":"d1296834-35c7-4ccc-8532-1203a6fefad0","file":"llm/PROJECT_STATE.md","type":"docs","summary":"Unconfirmed draft from read-only scan"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/adapters/claude-code/.gitattributes","type":"config","summary":"new payload file: LF rules for hooks and llm/framework"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/init/scripts/lib.sh","type":"logic-change","summary":"append_block single-write helper, CR-tolerant line matching and block comparison, gitattributes_missing"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/init/scripts/install.sh","type":"logic-change","summary":"write .gitattributes LF rules; single-write appends"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/update/scripts/update.sh","type":"bugfix","summary":"manage .devcontainer only if install-recorded; add LF rules; single-write appends"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/audit/scripts/audit.sh","type":"logic-change","summary":"CRLF diagnosis (byte-exact), LF-rules check, CRLF-tolerant import check"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/adopt/SKILL.md","type":"bugfix","summary":"repo containing the plugin source is a normal project; dry run before questions"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/init/SKILL.md","type":"bugfix","summary":"repo containing the plugin source is a normal project; dry run before questions"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/skills/audit/SKILL.md","type":"docs","summary":"guidance for CRLF and unpinned line-ending findings"}
+{"date":"2026-10-07","session":"unknown","file":"plugin/CHANGELOG.md","type":"docs","summary":"unreleased notes for line endings and skill fixes"}
+{"date":"2026-10-07","session":"unknown","file":"tests/test_install.sh","type":"test","summary":"gitattributes creation/merge, CRLF ignore files, repo root allowed target"}
+{"date":"2026-10-07","session":"unknown","file":"tests/test_update.sh","type":"test","summary":"gitattributes, CRLF CLAUDE.md block, own devcontainer untouched, CRLF ignore files"}
+{"date":"2026-10-07","session":"unknown","file":"tests/test_audit.sh","type":"test","summary":"CRLF hook and CLAUDE.md scenarios, unpinned line endings"}
+{"date":"2026-10-07","session":"unknown","file":"tests/test_scan.sh","type":"test","summary":"installer plans 21 files"}
+{"date":"2026-10-07","session":"unknown","file":".gitattributes","type":"config","summary":"LF rules appended by running update on this repo"}
+{"date":"2026-10-07","session":"unknown","file":"llm/TODO.md","type":"docs","summary":"wrote the open items"}
+{"date":"2026-10-07","session":"unknown","file":"llm/DECISIONS.md","type":"docs","summary":"recorded the LF-pinning decision"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged 15 bugs and limitations from the session"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"corrected the hooks-active claim"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"added item to verify mid-session hook reload"}

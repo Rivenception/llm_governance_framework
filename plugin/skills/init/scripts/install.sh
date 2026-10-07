@@ -58,7 +58,7 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-for f in "$ADAPTER/CLAUDE.md" "$ADAPTER/.claude/settings.json" "$ADAPTER/.gitignore" \
+for f in "$ADAPTER/CLAUDE.md" "$ADAPTER/.claude/settings.json" "$ADAPTER/.gitignore" "$ADAPTER/.gitattributes" \
          "$SRC/core/RULES.md" "$SRC/core/llm-records.md" "$SRC/templates/llm" "$SRC/.claude-plugin/plugin.json"; do
   if [ ! -e "$f" ]; then echo "install.sh: framework payload missing: $f" >&2; exit 1; fi
 done
@@ -173,13 +173,8 @@ elif grep -qF "$IMPORT_MARK" "$CLAUDE_DEST"; then
   report OK "CLAUDE.md (framework sections already present)"; OK=$((OK+1))
 else
   if [ "$DRY" = 0 ]; then
-    {
-      # make sure the existing file ends with a newline before appending
-      [ -n "$(tail -c1 "$CLAUDE_DEST")" ] && printf '\n'
-      printf '\n%s\n' "$BLOCK_BEGIN"
-      payload_block
-      printf '%s\n' "$BLOCK_END"
-    } >> "$CLAUDE_DEST" || { report ERROR "CLAUDE.md"; ERRORS=$((ERRORS+1)); }
+    append_block "$CLAUDE_DEST" "$(printf '\n%s\n%s\n%s\n' "$BLOCK_BEGIN" "$(payload_block)" "$BLOCK_END")" \
+      || { report ERROR "CLAUDE.md"; ERRORS=$((ERRORS+1)); }
   fi
   report MERGE "CLAUDE.md (appended framework sections; your content untouched)"; MERGED=$((MERGED+1))
 fi
@@ -195,13 +190,28 @@ else
     report OK ".gitignore (entries already present)"; OK=$((OK+1))
   else
     if [ "$DRY" = 0 ]; then
-      {
-        [ -n "$(tail -c1 "$GI_DEST")" ] && printf '\n'
-        printf '\n# llm-governance (hook state, local settings)\n'
-        printf '%s\n' "$MISSING"
-      } >> "$GI_DEST" || { report ERROR ".gitignore"; ERRORS=$((ERRORS+1)); }
+      append_block "$GI_DEST" "$(printf '\n# llm-governance (hook state, local settings)\n%s\n' "$MISSING")" \
+        || { report ERROR ".gitignore"; ERRORS=$((ERRORS+1)); }
     fi
     report MERGE ".gitignore (added missing entries)"; MERGED=$((MERGED+1))
+  fi
+fi
+
+# ---- 6b. .gitattributes (keep framework scripts LF on Windows checkouts) ----------
+
+GA_DEST="$TARGET/.gitattributes"
+if [ ! -e "$GA_DEST" ]; then
+  copy_file "$ADAPTER/.gitattributes" ".gitattributes" managed
+else
+  MISSING="$(gitattributes_missing)"
+  if [ -z "$MISSING" ]; then
+    report OK ".gitattributes (LF rules already present)"; OK=$((OK+1))
+  else
+    if [ "$DRY" = 0 ]; then
+      append_block "$GA_DEST" "$(printf '\n# llm-governance (framework scripts and rules keep LF line endings)\n%s\n' "$MISSING")" \
+        || { report ERROR ".gitattributes"; ERRORS=$((ERRORS+1)); }
+    fi
+    report MERGE ".gitattributes (added LF rules for framework files)"; MERGED=$((MERGED+1))
   fi
 fi
 

@@ -22,12 +22,14 @@ run() { OUT="$(bash "$INSTALL" "$@" 2>&1)"; RC=$?; }
 newproj empty
 run "$P"
 check "empty: exit 0" 0 "$RC"
-check "empty: 20 files created" yes "$(echo "$OUT" | grep -q 'created=20' && echo yes || echo no)"
-for f in CLAUDE.md .gitignore .claude/settings.json llm/PROJECT_STATE.md llm/KNOWN_ISSUES.md \
+check "empty: 21 files created" yes "$(echo "$OUT" | grep -q 'created=21' && echo yes || echo no)"
+for f in CLAUDE.md .gitignore .gitattributes .claude/settings.json llm/PROJECT_STATE.md llm/KNOWN_ISSUES.md \
          llm/framework/RULES.md llm/framework/llm-records.md llm/framework/VERSION \
          .claude/hooks/lib.sh .claude/hooks/mark_dirty.sh; do
   check "empty: has $f" yes "$([ -f "$P/$f" ] && echo yes || echo no)"
 done
+check "empty: .gitattributes pins hooks to LF" yes "$(grep -qxF '.claude/hooks/*.sh text eol=lf' "$P/.gitattributes" && echo yes || echo no)"
+check "empty: .gitattributes pins llm/framework to LF" yes "$(grep -qxF 'llm/framework/** text eol=lf' "$P/.gitattributes" && echo yes || echo no)"
 check "empty: hooks executable" yes "$([ -x "$P/.claude/hooks/check_project_state.sh" ] && echo yes || echo no)"
 check "empty: VERSION matches plugin.json" "$(jq -r .version "$PLUGIN/.claude-plugin/plugin.json")" "$(cat "$P/llm/framework/VERSION")"
 check "empty: imports resolve" yes "$(cd "$P" && grep -o '^@.*' CLAUDE.md | while read -r i; do [ -f "${i#@}" ] || echo MISSING; done | grep -q MISSING && echo no || echo yes)"
@@ -46,7 +48,7 @@ check "idempotent: tree byte-identical" "$H1" "$(treehash "$P")"
 newproj dry
 run --dry-run "$P"
 check "dry-run: exit 0" 0 "$RC"
-check "dry-run: reports plan" yes "$(echo "$OUT" | grep -q 'created=20.*dry run' && echo yes || echo no)"
+check "dry-run: reports plan" yes "$(echo "$OUT" | grep -q 'created=21.*dry run' && echo yes || echo no)"
 check "dry-run: directory stays empty" 0 "$(ls -A "$P" | wc -l | tr -d ' ')"
 
 # ---------- 4. existing project with its own files ----------
@@ -55,6 +57,7 @@ cd "$P" || exit 1
 git init -q . && git config user.email t@t && git config user.name t
 printf '# My App\n\nExisting instructions, no trailing newline' > CLAUDE.md
 printf 'node_modules/\n.env' > .gitignore
+printf '*.png binary\n*.sh text' > .gitattributes
 mkdir -p .claude llm
 cat > .claude/settings.json <<'EOF'
 {
@@ -85,12 +88,15 @@ check "existing: framework Stop hook added" yes "$(jq -e '[.hooks.Stop[].hooks[]
 check "existing: user PreToolUse kept" 1 "$(jq '.hooks.PreToolUse|length' "$P/.claude/settings.json")"
 check "existing: PostToolUse matcher added" 'Edit|Write|MultiEdit|NotebookEdit' "$(jq -r '.hooks.PostToolUse[0].matcher' "$P/.claude/settings.json")"
 check "existing: .gitignore originals kept" yes "$(grep -qx 'node_modules/' "$P/.gitignore" && grep -qx '.env' "$P/.gitignore" && echo yes || echo no)"
+check "existing: .gitattributes original kept" yes "$(grep -qx '\*.png binary' "$P/.gitattributes" && grep -qxF '*.sh text' "$P/.gitattributes" && echo yes || echo no)"
+check "existing: .gitattributes LF rules appended" yes "$(grep -qxF '.claude/hooks/*.sh text eol=lf' "$P/.gitattributes" && grep -qxF 'llm/framework/** text eol=lf' "$P/.gitattributes" && echo yes || echo no)"
 check "existing: .gitignore entries added" yes "$(grep -qxF '.claude/hooks/.state/' "$P/.gitignore" && grep -qxF '.claude/settings.local.json' "$P/.gitignore" && echo yes || echo no)"
 H2="$(treehash "$P")"
 run "$P"
 check "existing: second run exit 0" 0 "$RC"
 check "existing: second run changes nothing" "$H2" "$(treehash "$P")"
 check "existing: no duplicate Stop entries" 2 "$(jq '.hooks.Stop|length' "$P/.claude/settings.json")"
+check "existing: no duplicate .gitattributes lines" 1 "$(grep -cxF 'llm/framework/** text eol=lf' "$P/.gitattributes")"
 check "existing: no duplicate .gitignore lines" 1 "$(grep -cxF '.claude/hooks/.state/' "$P/.gitignore")"
 check "existing: no duplicate CLAUDE.md blocks" 1 "$(grep -c 'llm-governance:begin' "$P/CLAUDE.md")"
 
@@ -119,6 +125,15 @@ check "sandbox: devcontainer created" yes "$([ -f "$P/.devcontainer/devcontainer
 newproj nosandbox
 run "$P"
 check "no sandbox flag: no .devcontainer" no "$([ -e "$P/.devcontainer" ] && echo yes || echo no)"
+
+# ---------- 6b. CRLF ignore/attributes files (Windows checkout) ----------
+newproj crlfig
+printf '.claude/settings.local.json\r\n.claude/hooks/.state/\r\n' > "$P/.gitignore"
+printf '.claude/hooks/*.sh text eol=lf\r\nllm/framework/** text eol=lf\r\n' > "$P/.gitattributes"
+run "$P"
+check "CRLF .gitignore with the entries: recognised (OK)" yes "$(echo "$OUT" | grep -q 'OK        .gitignore' && echo yes || echo no)"
+check "CRLF .gitattributes with the rules: recognised (OK)" yes "$(echo "$OUT" | grep -q 'OK        .gitattributes' && echo yes || echo no)"
+check "CRLF ignore files: nothing appended" 2 "$(wc -l < "$P/.gitignore" | tr -d ' ')"
 
 # ---------- 7. argument / environment errors ----------
 run "$TMP/does-not-exist"

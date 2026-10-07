@@ -47,6 +47,13 @@ to prove the enforcement works in this environment.
    - a deep-check FAIL: the hooks do not behave correctly in this environment,
      so say which step failed (for example "Stop did not block") and check that
      `bash` and `jq` are available to wherever Claude Code runs;
+   - CRLF line endings in hook scripts or `llm/framework/` files, or "not pinned
+     to LF": this happens on Windows with `core.autocrlf=true` and breaks the
+     hooks under Linux, WSL and dev containers. The fix is to convert the files
+     to LF (the audit prints the exact `sed` command) and run the `update` skill
+     so the project's `.gitattributes` gets the LF rules that prevent it coming
+     back; `git add --renormalize .` can then refresh the working tree. Say
+     which files are affected;
    - DRAFT markers: the user should review the drafted files and delete the
      DRAFT line once satisfied;
    - add-only violations in git history: tell the user plainly; history cannot

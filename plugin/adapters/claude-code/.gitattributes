@@ -1,0 +1,5 @@
+# llm-governance: framework scripts and rules must keep LF line endings.
+# On Windows with core.autocrlf=true they would be checked out as CRLF, which
+# breaks the hook scripts under Linux, WSL and dev containers.
+.claude/hooks/*.sh text eol=lf
+llm/framework/** text eol=lf

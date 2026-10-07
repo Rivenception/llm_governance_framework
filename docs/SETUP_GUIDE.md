@@ -23,6 +23,7 @@ and enforcement hooks so the record can't be silently skipped.
 | `plugin/adapters/claude-code/.claude/hooks/lib.sh` | Shared helpers (jq check, sha256, path handling) sourced by the other hooks |
 | `plugin/adapters/claude-code/.claude/hooks/check_precompact.sh` | Advisory reminder before context compaction |
 | `plugin/adapters/claude-code/.claude/hooks/log_session_end.sh` | Advisory logger: appends to llm/SESSIONS.jsonl on real session end |
+| `plugin/adapters/claude-code/.gitattributes` | LF-pinning rules for the hooks and `llm/framework/`, merged into the project's `.gitattributes` so Windows autocrlf checkouts cannot break the scripts |
 | `plugin/adapters/claude-code/.gitignore` | Pre-includes `.claude/settings.local.json` (secrets) and the hooks' local state dir |
 | `plugin/sandbox/` | Optional container module: working `devcontainer.json`; `Dockerfile` and `init-firewall.sh` are empty placeholders. See `plugin/sandbox/README.md` |
 | `plugin/skills/` | The plugin's skills: `init`, `adopt`, `update`, `audit` (each a `SKILL.md` plus a deterministic script) |

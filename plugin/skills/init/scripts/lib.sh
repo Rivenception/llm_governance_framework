@@ -37,9 +37,10 @@ payload_head() { sed "/^$BLOCK_HEAD/,\$d" "$ADAPTER/CLAUDE.md"; }
 has_markers() {
   [ -f "$TARGET/CLAUDE.md" ] && grep -qF "$BLOCK_BEGIN_PREFIX" "$TARGET/CLAUDE.md" && grep -qF "$BLOCK_END" "$TARGET/CLAUDE.md"
 }
-# Text between the markers in the target's CLAUDE.md.
+# Text between the markers in the target's CLAUDE.md. CRs are dropped so a
+# Windows (CRLF) checkout of the file still compares equal to the plugin's block.
 target_block() {
-  sed -n "/$BLOCK_BEGIN_PREFIX/,/^$BLOCK_END\$/p" "$TARGET/CLAUDE.md" | sed '1d;$d'
+  sed -n "/$BLOCK_BEGIN_PREFIX/,/^$BLOCK_END\$/p" "$TARGET/CLAUDE.md" | sed '1d;$d' | tr -d '\r'
 }
 
 # ---- manifest: "<sha256>  <rel>" lines of what was installed pristine -----------
@@ -101,11 +102,25 @@ settings_merged() {
         end))' "$TARGET/.claude/settings.json" 2>/dev/null
 }
 
-# .gitignore lines from the adapter that the target lacks.
-gitignore_missing() {
+# Append text to a file with ONE write call. Several writes under a single
+# redirection can land at the wrong offsets on some bind-mounted/network
+# filesystems (seen once, on a Windows bind mount, mangling a file). A newline is
+# added first if the file does not already end with one.
+append_block() { # file text
+  local f="$1" pre=""
+  [ -s "$f" ] && [ -n "$(tail -c1 "$f")" ] && pre=$'\n'
+  printf '%s\n' "${pre}${2}" >> "$f"
+}
+
+# Lines of an adapter file (.gitignore, .gitattributes) that the target's copy lacks.
+# CRs are ignored so a CRLF (Windows autocrlf) checkout of the target still matches.
+lines_missing() { # adapter-file target-file
   local line
   while IFS= read -r line; do
     case "$line" in ''|'#'*) continue ;; esac
-    grep -qxF "$line" "$TARGET/.gitignore" 2>/dev/null || printf '%s\n' "$line"
-  done < "$ADAPTER/.gitignore"
+    tr -d '\r' < "$2" 2>/dev/null | grep -qxF "$line" || printf '%s\n' "$line"
+  done < "$1"
 }
+gitignore_missing() { lines_missing "$ADAPTER/.gitignore" "$TARGET/.gitignore"; }
+# LF-pinning rules so Windows autocrlf checkouts cannot turn hook scripts into CRLF.
+gitattributes_missing() { lines_missing "$ADAPTER/.gitattributes" "$TARGET/.gitattributes"; }
