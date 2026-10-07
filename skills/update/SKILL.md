@@ -74,7 +74,10 @@ files. Do not route around it.
    (`## [YYYY-MM-DD HH:MM] Update LLM governance framework <old> -> <new>`,
    `Session: ${CLAUDE_SESSION_ID}`, 2-4 sentences, files list) and one
    `llm/CHANGES.jsonl` line per framework file that was updated, created or
-   removed. Take the timestamp from `date`, never estimate.
+   removed. Take the timestamp from `date`, never estimate. These logs are
+   add-only: put the CHANGELOG entry at the top with an edit, and append the
+   `CHANGES.jsonl` lines at the end (for example with `printf ... >>`). Never
+   rewrite either file wholesale.
 
 6. **Wrap up, briefly.** What changed; any conflicts still open (and that the
    version stamp is held back while they are); hooks are read at session start

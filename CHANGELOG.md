@@ -4,7 +4,7 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
-## 0.2.0 (unreleased)
+## 0.2.0
 - **New `update` skill.** Brings a project's framework files up to the plugin's
   version without touching project records. Files you edited are reported as
   conflicts and left alone; you can take the plugin's version per file.

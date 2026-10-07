@@ -13,3 +13,4 @@ remove it rather than letting it sit.
 ## Later / unscheduled
 - [ ] Frontend integration testing once client app is ready
 - [ ] Consider Redis-backed sessions if revocation becomes a hard requirement
+- [ ] add technology badges to readme
