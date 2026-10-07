@@ -1,6 +1,11 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
+## [2026-10-07 20:26] Fix CRLF payload leaking into projects' .gitattributes
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Right after pushing the LF-pinning work, found and reproduced that the plugin's own adapter .gitattributes, unpinned, arrives as CRLF on a Windows autocrlf clone and leaks CRs into projects and breaks idempotence. Line matching now ignores CRs on both sides, this repo's .gitattributes pins itself to LF, and test_install.sh has a regression scenario (75 checks). Logged in KNOWN_ISSUES as resolved. Uncommitted at the time of writing.
+Files: plugin/skills/init/scripts/lib.sh, .gitattributes, tests/test_install.sh, llm/KNOWN_ISSUES.md
+
 ## [2026-10-07 20:20] Record the session's bugs in KNOWN_ISSUES and correct the hooks claim
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Added 15 entries to KNOWN_ISSUES.md (8 resolved bugs kept as history, 4 open, 3 accepted limitations) after they were missed in the previous entry. Correction: the previous entry and the DECISIONS entry say the framework's hooks were not active in the session; they were (the Stop hook stamped PROJECT_STATE.md with this session's ID), which also contradicts the skills' "hooks start in a new session" text. Those add-only entries are left as written and the correction lives here, in PROJECT_STATE.md and in KNOWN_ISSUES.md. Added the matching TODO item.

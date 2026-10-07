@@ -119,6 +119,13 @@ Files: plugin/skills/audit/scripts/audit.sh
 Description: grep on Windows Git Bash strips carriage returns before matching, so a grep-based CRLF check silently found nothing there. Found while verifying with core.autocrlf=true. Fixed (uncommitted): the check compares bytes (tr and cmp).
 Potential solution: Resolved. Avoid grep for CR detection on Windows.
 
+## [2026-10-07] A CRLF copy of the plugin's own .gitattributes payload leaked CRs into projects
+Severity: medium
+Status: resolved
+Files: plugin/skills/init/scripts/lib.sh, .gitattributes
+Description: Introduced by the LF-pinning work (commit 1c2d4c6) and found right after pushing it. The adapter's .gitattributes payload was not pinned to LF, so on a Windows autocrlf clone of the plugin it arrives as CRLF; the installer then appended CR-suffixed rules to the project's .gitattributes (and .gitignore) and, because matching compared the CR-suffixed payload lines, added them again on every run. No released plugin version contains it (the feature is unreleased). Fixed (uncommitted): line matching ignores CRs on both sides, and this repo's .gitattributes now pins .gitattributes itself to LF. Regression test added to test_install.sh.
+Potential solution: Resolved.
+
 ## [2026-10-07] Windows CRLF checkouts broke the hook scripts of adopted projects
 Severity: high
 Status: resolved

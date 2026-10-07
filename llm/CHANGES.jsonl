@@ -19,3 +19,8 @@
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged 15 bugs and limitations from the session"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"corrected the hooks-active claim"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"added item to verify mid-session hook reload"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"plugin/skills/init/scripts/lib.sh","type":"bugfix","summary":"line matching ignores CRs in the payload file too"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":".gitattributes","type":"config","summary":"pin .gitattributes itself to LF"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"tests/test_install.sh","type":"test","summary":"regression scenario for a CRLF plugin payload"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"logged the CRLF payload leak as resolved"}
+{"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/PROJECT_STATE.md","type":"docs","summary":"updated counts and recorded the CRLF payload fix"}

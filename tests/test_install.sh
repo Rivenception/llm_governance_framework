@@ -135,6 +135,21 @@ check "CRLF .gitignore with the entries: recognised (OK)" yes "$(echo "$OUT" | g
 check "CRLF .gitattributes with the rules: recognised (OK)" yes "$(echo "$OUT" | grep -q 'OK        .gitattributes' && echo yes || echo no)"
 check "CRLF ignore files: nothing appended" 2 "$(wc -l < "$P/.gitignore" | tr -d ' ')"
 
+# ---------- 6c. the plugin's own payload files arrive as CRLF (Windows autocrlf clone) ----------
+CRPL="$TMP/pl-crlf"; mkdir -p "$CRPL"
+(cd "$PLUGIN" && tar --exclude=.git -cf - .) | (cd "$CRPL" && tar -xf -)
+sed -i 's/$/\r/' "$CRPL/adapters/claude-code/.gitattributes" "$CRPL/adapters/claude-code/.gitignore"
+newproj crlfpayload
+printf '*.png binary\n' > "$P/.gitattributes"
+printf 'node_modules/\n' > "$P/.gitignore"
+bash "$CRPL/skills/init/scripts/install.sh" "$P" >/dev/null 2>&1
+check "CRLF payload: no CRs leak into the project's .gitattributes" 0 "$(tr -cd '\r' < "$P/.gitattributes" | wc -c | tr -d ' ')"
+check "CRLF payload: no CRs leak into the project's .gitignore" 0 "$(tr -cd '\r' < "$P/.gitignore" | wc -c | tr -d ' ')"
+OUT="$(bash "$CRPL/skills/init/scripts/install.sh" "$P" 2>&1)"
+check "CRLF payload: second run recognises .gitattributes (OK)" yes "$(echo "$OUT" | grep -q 'OK        .gitattributes' && echo yes || echo no)"
+check "CRLF payload: second run recognises .gitignore (OK)" yes "$(echo "$OUT" | grep -q 'OK        .gitignore' && echo yes || echo no)"
+check "CRLF payload: no duplicate rule" 1 "$(grep -cxF 'llm/framework/** text eol=lf' "$P/.gitattributes")"
+
 # ---------- 7. argument / environment errors ----------
 run "$TMP/does-not-exist"
 check "missing target: exit 1" 1 "$RC"

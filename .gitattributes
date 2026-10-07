@@ -10,3 +10,4 @@ Dockerfile text eol=lf
 # llm-governance (framework scripts and rules keep LF line endings)
 .claude/hooks/*.sh text eol=lf
 llm/framework/** text eol=lf
+.gitattributes text eol=lf

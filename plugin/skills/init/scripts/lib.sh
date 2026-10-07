@@ -113,13 +113,14 @@ append_block() { # file text
 }
 
 # Lines of an adapter file (.gitignore, .gitattributes) that the target's copy lacks.
-# CRs are ignored so a CRLF (Windows autocrlf) checkout of the target still matches.
+# CRs are ignored on both sides, so a CRLF (Windows autocrlf) checkout of either
+# the target or the plugin's own payload file still matches and never leaks CRs.
 lines_missing() { # adapter-file target-file
   local line
   while IFS= read -r line; do
     case "$line" in ''|'#'*) continue ;; esac
     tr -d '\r' < "$2" 2>/dev/null | grep -qxF "$line" || printf '%s\n' "$line"
-  done < "$1"
+  done < <(tr -d '\r' < "$1")
 }
 gitignore_missing() { lines_missing "$ADAPTER/.gitignore" "$TARGET/.gitignore"; }
 # LF-pinning rules so Windows autocrlf checkouts cannot turn hook scripts into CRLF.
