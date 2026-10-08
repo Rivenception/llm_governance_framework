@@ -52,3 +52,8 @@
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"closed drafts, dev container and badges items"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/DECISIONS.md","type":"docs","summary":"recorded tracking the dev container"}
 {"date":"2026-10-07","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"examples/llm/TODO.md","type":"docs","summary":"removed the owner placeholder reminder, now done"}
+{"date":"2026-10-07","session":"unknown","file":"docs/BOOTSTRAP_DESIGN.md","type":"docs","summary":"backfilled 2026-10-08: edit from the 20:13 line-ending work (commit 1c2d4c6) missing from this log"}
+{"date":"2026-10-07","session":"unknown","file":"docs/SETUP_GUIDE.md","type":"docs","summary":"backfilled 2026-10-08: edit from the 20:13 line-ending work (commit 1c2d4c6) missing from this log"}
+{"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/ARCHITECTURE.md","type":"docs","summary":"re-review fixes: rewrote from draft hedging to verified facts, version 0.5.0"}
+{"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"re-review fixes: removed finished LF-pin item"}
+{"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"re-review fixes: Fixed (uncommitted) wording now says Fixed in 0.5.0; logged SessionEnd finding"}

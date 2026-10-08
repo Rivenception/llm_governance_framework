@@ -95,28 +95,28 @@ Potential solution: Resolved.
 Severity: medium
 Status: resolved
 Files: plugin/skills/update/scripts/update.sh
-Description: update managed .devcontainer/devcontainer.json whenever the file existed, so a project's own dev container was reported as a conflict (baseline unknown) and the version stamp was held back. Found by running update on this repo. Fixed (uncommitted): it is managed only when the install record lists it.
+Description: update managed .devcontainer/devcontainer.json whenever the file existed, so a project's own dev container was reported as a conflict (baseline unknown) and the version stamp was held back. Found by running update on this repo. Fixed in 0.5.0: it is managed only when the install record lists it.
 Potential solution: Resolved.
 
 ## [2026-10-07] CRLF .gitignore and .gitattributes collected duplicate lines
 Severity: medium
 Status: resolved
 Files: plugin/skills/init/scripts/lib.sh
-Description: The merge matched lines exactly, so a CRLF file (a Windows autocrlf checkout read from Linux) never matched and the framework's lines were appended again on every run. Fixed (uncommitted): matching ignores CRs.
+Description: The merge matched lines exactly, so a CRLF file (a Windows autocrlf checkout read from Linux) never matched and the framework's lines were appended again on every run. Fixed in 0.5.0: matching ignores CRs.
 Potential solution: Resolved.
 
 ## [2026-10-07] Audit reported missing imports for a CRLF CLAUDE.md
 Severity: low
 Status: resolved
 Files: plugin/skills/audit/scripts/audit.sh
-Description: The import check matched whole lines, so the trailing CR made @llm/framework/RULES.md look absent. Fixed (uncommitted): the check ignores CRs, and the framework-block comparison does too.
+Description: The import check matched whole lines, so the trailing CR made @llm/framework/RULES.md look absent. Fixed in 0.5.0: the check ignores CRs, and the framework-block comparison does too.
 Potential solution: Resolved.
 
 ## [2026-10-07] Audit CRLF detection via grep never fired on Git Bash
 Severity: medium
 Status: resolved
 Files: plugin/skills/audit/scripts/audit.sh
-Description: grep on Windows Git Bash strips carriage returns before matching, so a grep-based CRLF check silently found nothing there. Found while verifying with core.autocrlf=true. Fixed (uncommitted): the check compares bytes (tr and cmp).
+Description: grep on Windows Git Bash strips carriage returns before matching, so a grep-based CRLF check silently found nothing there. Found while verifying with core.autocrlf=true. Fixed in 0.5.0: the check compares bytes (tr and cmp).
 Potential solution: Resolved. Avoid grep for CR detection on Windows.
 
 ## [2026-10-07] Unreleased changes were pushed under an unchanged plugin version
@@ -130,19 +130,26 @@ Potential solution: Resolved. Going forward, either keep unreleased work off mas
 Severity: low
 Status: resolved
 Files: plugin/skills/update/scripts/update.sh, plugin/skills/init/scripts/install.sh
-Description: If the plugin version could not be read (missing file, invalid JSON, or a jq that cannot open the path), update compared an empty version and refused with "newer than this plugin ()". Fixed (uncommitted): both scripts exit 1 with "cannot read the plugin version". Tests added.
+Description: If the plugin version could not be read (missing file, invalid JSON, or a jq that cannot open the path), update compared an empty version and refused with "newer than this plugin ()". Fixed in 0.5.0: both scripts exit 1 with "cannot read the plugin version". Tests added.
 Potential solution: Resolved.
 
 ## [2026-10-07] A CRLF copy of the plugin's own .gitattributes payload leaked CRs into projects
 Severity: medium
 Status: resolved
 Files: plugin/skills/init/scripts/lib.sh, .gitattributes
-Description: Introduced by the LF-pinning work (commit 1c2d4c6) and found right after pushing it. The adapter's .gitattributes payload was not pinned to LF, so on a Windows autocrlf clone of the plugin it arrives as CRLF; the installer then appended CR-suffixed rules to the project's .gitattributes (and .gitignore) and, because matching compared the CR-suffixed payload lines, added them again on every run. No released plugin version contains it (the feature is unreleased). Fixed (uncommitted): line matching ignores CRs on both sides, and this repo's .gitattributes now pins .gitattributes itself to LF. Regression test added to test_install.sh.
+Description: Introduced by the LF-pinning work (commit 1c2d4c6) and found right after pushing it. The adapter's .gitattributes payload was not pinned to LF, so on a Windows autocrlf clone of the plugin it arrives as CRLF; the installer then appended CR-suffixed rules to the project's .gitattributes (and .gitignore) and, because matching compared the CR-suffixed payload lines, added them again on every run. The payload shipped in the pushed 0.4.0 for a short time before the fix (206caaa); 0.5.0 contains the fix. Fixed in 0.5.0: line matching ignores CRs on both sides, and this repo's .gitattributes now pins .gitattributes itself to LF. Regression test added to test_install.sh.
 Potential solution: Resolved.
 
 ## [2026-10-07] Windows CRLF checkouts broke the hook scripts of adopted projects
 Severity: high
 Status: resolved
 Files: plugin/adapters/claude-code/.gitattributes, plugin/skills/init/scripts/install.sh, plugin/skills/update/scripts/update.sh, plugin/skills/audit/scripts/audit.sh
-Description: With core.autocrlf=true a clone turned all six hooks and the llm/framework files into CRLF, which bash rejects on Linux, WSL and dev containers; only this repo had a protecting .gitattributes, and the audit could only report a generic syntax error. Fixed (uncommitted): init, adopt and update add LF rules to the project's .gitattributes, and the audit names CRLF with the exact fix. See llm/DECISIONS.md.
+Description: With core.autocrlf=true a clone turned all six hooks and the llm/framework files into CRLF, which bash rejects on Linux, WSL and dev containers; only this repo had a protecting .gitattributes, and the audit could only report a generic syntax error. Fixed in 0.5.0: init, adopt and update add LF rules to the project's .gitattributes, and the audit names CRLF with the exact fix. See llm/DECISIONS.md.
 Potential solution: Resolved.
+
+## [2026-10-08] llm/SESSIONS.jsonl is empty in this repo; SessionEnd not yet seen firing in a desktop session
+Severity: low
+Status: open
+Files: llm/SESSIONS.jsonl, .claude/hooks/log_session_end.sh
+Description: The log has no lines since the adoption. Checked: the hook is registered in .claude/settings.json, runs correctly when invoked by hand, and wrote a line in a real `claude -p` session (Claude Code 2.1.292, dev container, throwaway copy of the project). Likely explanations, not yet proven: the adoption session started before the hook existed, and the desktop-app session that has run since has not ended (it was continued after compaction and across days). Separately, the hook stamps its own local-time `date` without an offset, one more case for the timestamp convention in TODO.
+Potential solution: End or /clear a desktop session in this repo and check whether a line appears. If not, the hook does not fire for that exit path (the script's own header already warns about this) and the log should be documented as best-effort only.

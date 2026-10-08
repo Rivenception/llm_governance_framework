@@ -1,6 +1,11 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
+## [2026-10-08 17:28] Re-review llm/ records; investigate empty SESSIONS.jsonl
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: Re-read every file in llm/ and fixed what was stale: rewrote ARCHITECTURE.md from draft hedging ("appears to be", version 0.4.0) into verified facts for 0.5.0 (skills, shared lib.sh, install/update/runtime data flow); removed the finished LF-pin item from TODO.md; changed five "Fixed (uncommitted)" and "unreleased" mentions in KNOWN_ISSUES.md to "Fixed in 0.5.0"; backfilled the two docs/ edits missing from CHANGES.jsonl (marked as backfilled). Investigated SESSIONS.jsonl: the SessionEnd hook is registered and works by hand and in a real `claude -p` run in the dev container, so the empty log is probably because the adoption session predates the hook and the desktop session has not ended; logged as open in KNOWN_ISSUES.md with a test to confirm. Audit passes (29 checks) in the dev container.
+Files: llm/ARCHITECTURE.md, llm/TODO.md, llm/KNOWN_ISSUES.md, llm/CHANGES.jsonl, llm/CHANGELOG.md, llm/PROJECT_STATE.md
+
 ## [2026-10-07 21:07] Track the dev container; add README badges
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Started tracking .devcontainer/ (config plus the lock file VS Code generated), renamed from the placeholder "My Sandboxed Project", and documented it in the README Contributing section and CLAUDE.md commands. Added seven technology badges (Bash, jq, Markdown, JSON, Claude Code plugin, Dev Container, GitHub) under the README title; each URL was checked to return an SVG with its logo. The owner reviewed ARCHITECTURE.md and PROJECT_STATE.md and removed their DRAFT lines; refreshed both, removed the resolved TODO items (drafts, dev container, badges and the owner's placeholder line in examples/llm/TODO.md) and recorded the decision.
