@@ -77,3 +77,6 @@
 {"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/TODO.md", "type": "docs", "summary": "timestamp item done"}
 {"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/CHANGELOG.md", "type": "docs", "summary": "0.6.0 entry"}
 {"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/PROJECT_STATE.md", "type": "docs", "summary": "refreshed"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/PROJECT_STATE.md", "type": "docs", "summary": "0.6.0 verification against real GitHub"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/KNOWN_ISSUES.md", "type": "docs", "summary": "0.6.0 verification against real GitHub"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/CHANGELOG.md", "type": "docs", "summary": "0.6.0 verification against real GitHub"}

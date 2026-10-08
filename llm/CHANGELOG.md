@@ -1,7 +1,12 @@
 # Changelog
 Prose history of logical changes. Add-only, newest at top.
 
-## [2026-10-08 17:50] Release 0.6.0: UTC timestamps everywhere
+## [2026-10-08 18:30] Verify the published 0.6.0 against real GitHub
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+What: In the dev container, added the marketplace from GitHub and installed the plugin: it came in as 0.6.0 with a lean cache, executable scripts and the `date -u` hooks. Claude Code only accepts a branch or tag as a marketplace ref, so the 0.5.0 -> 0.6.0 plugin hop was not repeated (it was verified for 0.4.0 -> 0.5.0). Instead built a throwaway project with the real 0.5.0 installer (from commit b016a0e) and ran the live `/llm-governance:update` with the 0.6.0 plugin: six files updated, no conflicts, version stamp 0.6.0, correct CHANGELOG and CHANGES entries; the project's audit had 0 failures (2 expected warnings for an unfilled CLAUDE.md and an unstamped PROJECT_STATE). The run's SessionEnd hook wrote a line to the throwaway project's SESSIONS.jsonl. Removed the test project, plugin and marketplace from the container.
+Files: llm/PROJECT_STATE.md, llm/KNOWN_ISSUES.md, llm/CHANGELOG.md, llm/CHANGES.jsonl
+
+ Release 0.6.0: UTC timestamps everywhere
 Session: 115017e7-19b7-45eb-8573-d45f62282310
 What: Made UTC the framework-wide timestamp convention (no Z suffix). The CLAUDE.md block, the SessionStart, Stop and SessionEnd hooks, the record spec (new Timestamps section), the adopt and update skill text and the docs now say or use `date -u`; the audit checks the `Last updated:` stamp form. Added tests that run the three hooks under UTC+14 and UTC-11 and compare with `date -u` (mutation-checked); suites in the dev container: install 75, update 110, scan 47, audit 89; both manifests validate. Ran update on this repo (0.5.0 -> 0.6.0, six files, no conflicts) and removed the interim UTC override from CLAUDE.md. Not pushed; the release happens on push.
 Files: plugin/.claude-plugin/plugin.json, plugin/CHANGELOG.md, plugin/core/llm-records.md, plugin/adapters/claude-code/CLAUDE.md, plugin/adapters/claude-code/.claude/hooks/session_start.sh, plugin/adapters/claude-code/.claude/hooks/check_project_state.sh, plugin/adapters/claude-code/.claude/hooks/log_session_end.sh, plugin/skills/adopt/SKILL.md, plugin/skills/update/SKILL.md, plugin/skills/audit/scripts/audit.sh, tests/test_audit.sh, docs/SETUP_GUIDE.md, docs/STARTUP_CHECKLIST.md, CLAUDE.md, llm/framework/*, .claude/hooks/*, llm/DECISIONS.md, llm/KNOWN_ISSUES.md, llm/TODO.md, llm/PROJECT_STATE.md
