@@ -16,7 +16,7 @@ INPUT=$(cat)
 
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
 REASON=$(echo "$INPUT" | jq -r '.reason // "unknown"')
-NOW=$(date "+%Y-%m-%dT%H:%M:%S")
+NOW=$(date -u "+%Y-%m-%dT%H:%M:%S")
 
 LOG_FILE="${CLAUDE_PROJECT_DIR:-.}/llm/SESSIONS.jsonl"
 mkdir -p "$(dirname "$LOG_FILE")"

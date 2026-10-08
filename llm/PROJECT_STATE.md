@@ -9,25 +9,24 @@ Shell-script and Markdown project: the Claude Code plugin `llm-governance` (skil
 - **Audit of the repo root:** 0 failures. The owner has reviewed `llm/ARCHITECTURE.md` and this file and removed their DRAFT lines.
 
 ## What just happened (this session)
-- Re-reviewed all llm/ records. Rewrote ARCHITECTURE.md as verified facts for 0.5.0, removed a finished TODO item, corrected stale "Fixed (uncommitted)" wording in KNOWN_ISSUES.md, and backfilled two missing docs/ lines in CHANGES.jsonl.
-- Investigated the empty llm/SESSIONS.jsonl: the SessionEnd hook is registered and works by hand and in a real `claude -p` session in the dev container. Probable cause is that no desktop session has ended since the hook existed; unconfirmed (KNOWN_ISSUES, TODO).
-- The dev container (`unruffled_euclid`) was stopped; it was started to run the audit and is still running. Audit there: 29 pass, 0 warn, 0 fail.
-- Earlier: tracked the dev container, added README badges, published and verified 0.5.0.
+- Implemented the UTC timestamp convention (no Z suffix) as plugin 0.6.0: CLAUDE.md block, three hooks, record spec, skill text, docs, an audit stamp-form check, and tests that run the hooks under UTC+14 and UTC-11. Suites in the dev container: install 75, update 110, scan 47, audit 89; both manifests validate. Ran update on this repo (0.5.0 -> 0.6.0) and removed the interim UTC override from CLAUDE.md. Decision logged.
+- Earlier today: re-reviewed all llm/ records (committed as 0eed286, not pushed) and investigated the empty SESSIONS.jsonl (hook works in `claude -p`; unconfirmed for desktop sessions; KNOWN_ISSUES).
+- Work now happens in the dev container (`unruffled_euclid`), driven with `docker exec` from the host.
 
 ## Current state of the codebase
-- `plugin/` is the product: `.claude-plugin/plugin.json` (version 0.5.0), `skills/{init,adopt,update,audit}` (SKILL.md plus scripts; shared helpers in `skills/init/scripts/lib.sh`), `core/`, `adapters/claude-code/`, `templates/llm/`, `sandbox/` (scaffold: firewall and Dockerfile are empty placeholders), `CHANGELOG.md`.
+- `plugin/` is the product: `.claude-plugin/plugin.json` (version 0.6.0), `skills/{init,adopt,update,audit}` (SKILL.md plus scripts; shared helpers in `skills/init/scripts/lib.sh`), `core/`, `adapters/claude-code/`, `templates/llm/`, `sandbox/` (scaffold: firewall and Dockerfile are empty placeholders), `CHANGELOG.md`.
 - The root holds `docs/`, `examples/`, `tests/`, `README.md`, `.claude-plugin/marketplace.json` (source `./plugin`), and this repo's own installed framework (`.claude/`, `llm/`, `CLAUDE.md`). The installed copies are managed by `update`: edit the sources in `plugin/`, never the copies.
-- Uncommitted: the llm/ record fixes above (docs only).
+- Uncommitted: the whole 0.6.0 change (not pushed; pushing is the release). Local commit 0eed286 (llm/ re-review) is also unpushed.
 - No CI, no license.
 
 ## Next recommended task
-Pick the next item from llm/TODO.md. Suggested order: choose a license (the only item under Now), then the sandbox module (firewall, allowlist, threat model), the framework-wide timestamp convention, CI for the four suites, and finding out which hook events Claude Code reloads mid-session.
+Pick the next item from llm/TODO.md. Suggested order: commit and (with approval) push 0.6.0, choose a license (the only item under Now), then the sandbox module (firewall, allowlist, threat model), CI for the four suites, and finding out which hook events Claude Code reloads mid-session.
 
 ## Open risks / questions
 - No license chosen.
 - Which hook events Claude Code reloads mid-session is unverified (the skills' "starts in a new session" text may be wrong).
 - One garbled `.gitattributes` was seen once on the Windows bind mount and never reproduced; appends are now single writes.
-- Timestamps: this repo uses UTC (interim rule in CLAUDE.md); the Stop hook's PROJECT_STATE stamp is machine-local.
+- Timestamps: UTC everywhere from 0.6.0. Entries written before it may be local time (add-only logs, not rewritten).
 - Interactive (non -p) skill use and non-`user` plugin scopes are untested.
 
 ## How to resume

@@ -111,7 +111,7 @@ There's no timeout — sessions don't expire from inactivity. Ending one is alwa
   tooling config. Both are needed; they protect different things.
 - Claude cannot see its own session ID or the clock. `session_start.sh`
   injects both via `additionalContext` at session start, and CLAUDE.md
-  tells Claude to use them (and `date` for timestamps) instead of guessing.
+  tells Claude to use them (and `date -u` for UTC timestamps) instead of guessing.
 - The Stop hook's retry guard (`stop_hook_active`) means a block fires once
   per turn; Claude can ignore it on the retry. Treat the hook as a strong
   nudge, not a hard guarantee.
@@ -144,7 +144,7 @@ There's no timeout — sessions don't expire from inactivity. Ending one is alwa
   `check_project_state.sh` hashes the file's content (excluding the
   `Last updated:` line it stamps) and only allows the session to continue once that hash
   has actually changed since the last check.
-- The Stop hook auto-stamps the session ID and timestamp onto
+- The Stop hook auto-stamps the session ID and a UTC timestamp onto
   `PROJECT_STATE.md`'s header line using the `session_id` field Claude Code
   passes to every hook on stdin — no manual lookup needed. This depends on
   `jq` being installed and on your Claude Code version exposing

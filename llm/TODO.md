@@ -7,12 +7,11 @@ remove it rather than letting it sit.
 
 ## Next
 - [ ] Sandbox module: implement `plugin/sandbox/init-firewall.sh` as an original implementation (default deny, editable `allowed-domains.txt`, no blanket outbound SSH, fail closed, self-test), fill `allowed-domains.txt`, write `docs/SANDBOX_THREAT_MODEL.md`, decide whether the `Dockerfile` is needed, and wire `--sandbox` through `init`/`adopt` end to end. Anthropic's reference container is proprietary, so none of its files may be copied.
-- [ ] Decide the timestamp convention for `llm/` entries framework-wide. This repo uses UTC as an interim rule (CLAUDE.md, DECISIONS). UTC (`date -u`) is the likely answer; the rules, the skills, the Stop hook's PROJECT_STATE stamp and the audit's newest-first check would then agree.
 - [ ] Look into the one-off garbled `.gitattributes` seen when `update` ran in the dev container against the Windows bind mount (not reproducible in four attempts). Appends are now single writes; consider also writing edits to user files via a temp file and rename.
 - [ ] Add CI: run the four suites in `tests/` on Linux on every push (they take seconds there), plus an occasional Windows run (minutes). There is no CI config today.
 - [ ] Check whether Claude Code's startup auto-update picks up new plugin versions without the manual commands. `plugin update` alone worked once and reported "already latest" another time.
 - [ ] Find out which hook events Claude Code reloads mid-session (the Stop and PostToolUse hooks fired in the adoption session without a restart) and correct the skills' "hooks start in a new session" wrap-up text; see KNOWN_ISSUES.
-- [ ] Confirm `llm/SESSIONS.jsonl` gets a line when a desktop session ends (the hook works in `claude -p`; see KNOWN_ISSUES). Also make the hook's timestamp follow the framework-wide convention.
+- [ ] Confirm `llm/SESSIONS.jsonl` gets a line when a desktop session ends (the hook works in `claude -p`; see KNOWN_ISSUES).
 - [ ] Test the skills in interactive (not `-p`) sessions and with plugin scopes other than `user`.
 
 ## Later / unscheduled

@@ -50,7 +50,7 @@ echo "$CURRENT_HASH" > "$HASH_FILE"
 rm -f "$DIRTY_FILE"
 
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
-NOW=$(date "+%Y-%m-%d %H:%M")
+NOW=$(date -u "+%Y-%m-%d %H:%M")
 sed -i.bak "1,3 s/^Last updated:.*/Last updated: ${NOW} | Session: ${SESSION_ID}/" "$STATE_FILE" 2>/dev/null
 rm -f "${STATE_FILE}.bak"
 

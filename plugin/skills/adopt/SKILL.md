@@ -68,7 +68,7 @@ own permission prompt. That is the user's approval gate; do not route around it.
 
 6. **Draft `llm/ARCHITECTURE.md`.** Fill it only if it is still the blank
    skeleton; if it has real content, leave it and propose additions in chat.
-   - Begin the file with this line, with today's date from `date`:
+   - Begin the file with this line, with today's UTC date from `date -u +%Y-%m-%d`:
      `> **DRAFT, unconfirmed.** Generated from a read-only scan on <date> (session ${CLAUDE_SESSION_ID}). Verify before relying on it; delete this line once reviewed.`
    - Describe only what the evidence supports (components, directory
      responsibilities, data flow, external dependencies), citing the paths you
@@ -99,8 +99,8 @@ own permission prompt. That is the user's approval gate; do not route around it.
    ${CLAUDE_SESSION_ID}`, what changed in 2-4 sentences, files: the framework
    files, plus `CLAUDE.md`, `.gitignore`, `.claude/settings.json` if merged).
    Add one `llm/CHANGES.jsonl` line for each of those three existing files
-   that were merged, and for each draft you wrote. Take the timestamp from
-   `date`, never estimate. These logs are add-only: edit the new CHANGELOG
+   that were merged, and for each draft you wrote. Take the UTC timestamp from
+   `date -u "+%Y-%m-%d %H:%M"`, never estimate. These logs are add-only: edit the new CHANGELOG
    entry in at the top, and append the `CHANGES.jsonl` lines at the end (for
    example with `printf ... >>`). Never rewrite either file wholesale.
 

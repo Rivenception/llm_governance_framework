@@ -230,6 +230,44 @@ if ! PATH="/usr/bin:/bin" command -v jq >/dev/null 2>&1; then
   check "no jq: exit 2" 2 "$RC"
 fi
 
+# ================= hooks stamp UTC, whatever the machine time zone =================
+# Pacific/Kiritimati is UTC+14 and Pacific/Pago_Pago is UTC-11, so local time
+# differs from UTC by a different date at the same moment. Compare to date -u
+# taken just before and just after (the minute may roll over in between).
+fresh tz; HK="$P/.claude/hooks"
+utc_ok() { # stamp-prefix check against date -u before/after
+  case "$1" in "$B"*|"$E"*) echo yes ;; *) echo no ;; esac
+}
+for ZONE in Pacific/Kiritimati Pacific/Pago_Pago; do
+  B="$(date -u '+%Y-%m-%d %H:%M')"
+  OUTJ="$(echo '{"session_id":"tz-s"}' | TZ=$ZONE CLAUDE_PROJECT_DIR="$P" bash "$HK/session_start.sh")"
+  E="$(date -u '+%Y-%m-%d %H:%M')"
+  GOT="$(printf '%s' "$OUTJ" | jq -r '.hookSpecificOutput.additionalContext' | tr -d '\r' | sed -n 's/.*Session started: \([0-9-]* [0-9:]*\) UTC\..*/\1/p')"
+  check "SessionStart injects UTC ($ZONE)" yes "$(utc_ok "$GOT")"
+  check "SessionStart tells the assistant to use date -u ($ZONE)" yes "$(has "$OUTJ" 'date -u')"
+  # Stop hook stamp: mark dirty, change the body, run the hook
+  mkdir -p "$P/.claude/hooks/.state"; : > "$P/.claude/hooks/.state/dirty"
+  echo "tz run $ZONE" >> "$P/llm/PROJECT_STATE.md"
+  B="$(date -u '+%Y-%m-%d %H:%M')"
+  echo '{}' | TZ=$ZONE CLAUDE_PROJECT_DIR="$P" bash "$HK/check_project_state.sh" >/dev/null 2>&1
+  E="$(date -u '+%Y-%m-%d %H:%M')"
+  GOT="$(grep '^Last updated:' "$P/llm/PROJECT_STATE.md" | tr -d '\r' | sed -n 's/^Last updated: \([0-9-]* [0-9:]*\) |.*/\1/p')"
+  check "Stop hook stamps UTC ($ZONE)" yes "$(utc_ok "$GOT")"
+  # SessionEnd log line (seconds precision; compare date and hour:minute)
+  : > "$P/llm/SESSIONS.jsonl"
+  B="$(date -u '+%Y-%m-%dT%H:%M')"
+  echo '{"session_id":"tz-s","reason":"other"}' | TZ=$ZONE CLAUDE_PROJECT_DIR="$P" bash "$HK/log_session_end.sh" >/dev/null 2>&1
+  E="$(date -u '+%Y-%m-%dT%H:%M')"
+  GOT="$(jq -r '.date' "$P/llm/SESSIONS.jsonl" | tr -d '\r' | cut -c1-16)"
+  check "SessionEnd logs UTC ($ZONE)" yes "$(utc_ok "$GOT")"
+done
+cd "$REPO" || exit 1
+aud --no-deep "$P"
+check "audit: stamp form PASS" yes "$(lv PASS health 'YYYY-MM-DD HH:MM form')"
+sed -i 's/^Last updated:.*/Last updated: yesterday-ish | Session: x/' "$P/llm/PROJECT_STATE.md"
+aud --no-deep "$P"
+check "audit: odd stamp form WARN" yes "$(lv WARN health 'not in the YYYY-MM-DD HH:MM form')"
+
 echo
 echo "passed=$PASS failed=$FAIL"
 [ "$FAIL" = 0 ]

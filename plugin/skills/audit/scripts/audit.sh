@@ -222,7 +222,11 @@ PS="$(T llm/PROJECT_STATE.md)"
 if [ -f "$PS" ]; then
   if head -3 "$PS" | grep -q '^Last updated:'; then
     if head -3 "$PS" | grep -q 'auto-stamped'; then warn health "PROJECT_STATE.md has never been stamped (the Stop hook has not completed a pass yet)"
-    else pass health "PROJECT_STATE.md has a Last updated stamp in its first three lines"; fi
+    else pass health "PROJECT_STATE.md has a Last updated stamp in its first three lines"
+      if head -3 "$PS" | tr -d '' | grep -qE '^Last updated: [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}( |$)'; then
+        pass health "Last updated stamp is in the YYYY-MM-DD HH:MM form (UTC since 0.6.0)"
+      else warn health "Last updated stamp is not in the YYYY-MM-DD HH:MM form; the next Stop hook pass rewrites it in UTC"; fi
+    fi
   else
     warn health "PROJECT_STATE.md has no 'Last updated:' line in its first three lines, so the Stop hook cannot stamp it"
   fi

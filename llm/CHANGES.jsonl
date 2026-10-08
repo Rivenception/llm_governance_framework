@@ -57,3 +57,23 @@
 {"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/ARCHITECTURE.md","type":"docs","summary":"re-review fixes: rewrote from draft hedging to verified facts, version 0.5.0"}
 {"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/TODO.md","type":"docs","summary":"re-review fixes: removed finished LF-pin item"}
 {"date":"2026-10-08","session":"115017e7-19b7-45eb-8573-d45f62282310","file":"llm/KNOWN_ISSUES.md","type":"docs","summary":"re-review fixes: Fixed (uncommitted) wording now says Fixed in 0.5.0; logged SessionEnd finding"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/.claude-plugin/plugin.json", "type": "config", "summary": "version 0.6.0"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/CHANGELOG.md", "type": "docs", "summary": "0.6.0 release notes"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/core/llm-records.md", "type": "docs", "summary": "new Timestamps section: all UTC, no suffix"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/adapters/claude-code/CLAUDE.md", "type": "config", "summary": "block tells the assistant to use date -u"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/adapters/claude-code/.claude/hooks/session_start.sh", "type": "logic-change", "summary": "inject UTC"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/adapters/claude-code/.claude/hooks/check_project_state.sh", "type": "logic-change", "summary": "stamp PROJECT_STATE in UTC"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/adapters/claude-code/.claude/hooks/log_session_end.sh", "type": "logic-change", "summary": "log SessionEnd in UTC"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/skills/adopt/SKILL.md", "type": "docs", "summary": "UTC date wording"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/skills/update/SKILL.md", "type": "docs", "summary": "UTC timestamp wording"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "plugin/skills/audit/scripts/audit.sh", "type": "logic-change", "summary": "check Last updated stamp form"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "tests/test_audit.sh", "type": "test", "summary": "hooks stamp UTC under UTC+14 and UTC-11; stamp-form checks"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "docs/SETUP_GUIDE.md", "type": "docs", "summary": "UTC wording"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "docs/STARTUP_CHECKLIST.md", "type": "docs", "summary": "UTC wording"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "CLAUDE.md", "type": "docs", "summary": "removed interim UTC override; block refreshed by update"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/framework/VERSION", "type": "config", "summary": "0.5.0 -> 0.6.0"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/DECISIONS.md", "type": "docs", "summary": "UTC decision"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/KNOWN_ISSUES.md", "type": "docs", "summary": "timestamp entry resolved"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/TODO.md", "type": "docs", "summary": "timestamp item done"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/CHANGELOG.md", "type": "docs", "summary": "0.6.0 entry"}
+{"date": "2026-10-08", "session": "115017e7-19b7-45eb-8573-d45f62282310", "file": "llm/PROJECT_STATE.md", "type": "docs", "summary": "refreshed"}

@@ -2,6 +2,15 @@
 Architecture Decision Records. Add-only, newest at top. Log real forks in
 the road — not every small choice.
 
+## [2026-10-08] Use UTC for all llm/ timestamps, framework-wide (plugin 0.6.0)
+Context: Entries stamped in machine-local time were hours apart between a Windows host session (UTC-4) and a container session (UTC), so newest-first order broke. This repo had used UTC as an interim rule since 2026-10-07.
+Chose: UTC everywhere, written as before (`YYYY-MM-DD HH:MM`, no suffix): the CLAUDE.md block says `date -u`, the SessionStart hook injects UTC, the Stop hook stamps PROJECT_STATE.md in UTC, SESSIONS.jsonl lines are UTC, and llm-records.md states the rule. The audit checks the stamp form. Old entries are not rewritten, so entries before this date may be local time. Released as 0.6.0; this repo's CLAUDE.md interim override was removed.
+Rejected:
+- Keeping local time: it breaks ordering whenever sessions run in different zones or containers.
+- A `Z` suffix: owner's call to keep the existing format unchanged.
+- Rewriting older entries: the logs are add-only.
+Session: 115017e7-19b7-45eb-8573-d45f62282310
+
 ## [2026-10-07] Track the root .devcontainer as this repo's dev environment
 Context: The suites take minutes on Windows and seconds on Linux, and a working dev container (Claude Code, node, jq, git, a volume for the login) already existed untracked at the repo root. It had been left undecided since the adoption.
 Chose: Track `.devcontainer/` (devcontainer.json and VS Code's devcontainer-lock.json) as the repo's own development environment, named "LLM Governance Framework (dev)", and point CLAUDE.md and the README's Contributing section at it. It stays separate from `plugin/sandbox/devcontainer.json`, the copy shipped to users.

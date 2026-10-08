@@ -52,7 +52,7 @@ Claude: "set up the llm/ change-tracking folder from my standard template."
 
 ## 6. Session anchor
 - [ ] No action needed — the Stop hook auto-stamps the session ID and
-      timestamp onto `PROJECT_STATE.md`'s header line every time it fires.
+      UTC timestamp onto `PROJECT_STATE.md`'s header line every time it fires.
       Just confirm the header line reads `Last updated: ... | Session: ...`
       with a real value (not "unknown") after your first session — if it
       says "unknown," `jq` likely isn't installed, or this Claude Code

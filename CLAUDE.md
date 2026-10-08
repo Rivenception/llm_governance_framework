@@ -51,9 +51,6 @@ approval process in Decision ownership.
   `plugin/CHANGELOG.md` entry, validate both manifests, run all four suites.
   Pushing is the release: ask before it. Installed copies only update when the
   version changes.
-- Record timestamps in UTC: use `date -u "+%Y-%m-%d %H:%M"` for `llm/` entries
-  in this repo. This overrides the machine-local `date` in the framework block
-  below until the convention is settled (see `llm/TODO.md`).
 - Windows gotchas: `jq.exe` emits CRLF (strip before `read` loops); `grep` on
   Git Bash strips CRs (use `tr`/`cmp` to detect them); new scripts need
   `git update-index --chmod=+x`.
@@ -66,8 +63,8 @@ approval process in Decision ownership.
 ## Session ID and timestamps
 A SessionStart hook injects the session ID and start time into your
 context. Use that exact session ID in every `Session:` field and in
-`CHANGES.jsonl`. For entry timestamps, run `date "+%Y-%m-%d %H:%M"` —
-never estimate. If no session ID was injected, write `unknown` rather than
+`CHANGES.jsonl`. All timestamps are UTC. For entry timestamps, run
+`date -u "+%Y-%m-%d %H:%M"` — never estimate. If no session ID was injected, write `unknown` rather than
 inventing one, and tell me the hook isn't working (usually `jq` missing).
 
 ## Framework rules (imported)

@@ -17,9 +17,9 @@ fi
 
 INPUT=$(cat)
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "unknown"')
-NOW=$(date "+%Y-%m-%d %H:%M")
+NOW=$(date -u "+%Y-%m-%d %H:%M")
 
-MSG="Session ID: ${SESSION_ID}. Session started: ${NOW}. Use this session ID in llm/ entries. For entry timestamps, run date \"+%Y-%m-%d %H:%M\" rather than estimating."
+MSG="Session ID: ${SESSION_ID}. Session started: ${NOW} UTC. Use this session ID in llm/ entries. For entry timestamps, run date -u \"+%Y-%m-%d %H:%M\" (UTC) rather than estimating."
 
 jq -n --arg msg "$MSG" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $msg}}'
 

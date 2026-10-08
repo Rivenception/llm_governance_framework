@@ -3,6 +3,14 @@ This project uses `llm/` for a durable record of AI-assisted changes,
 readable by both humans and future assistant sessions. Keep entries factual
 and short — detail belongs in code/commits, not here.
 
+## Timestamps
+All timestamps in these records are UTC, written without a suffix:
+`YYYY-MM-DD HH:MM` (or `YYYY-MM-DD` where only a date is asked for). Take
+them from the clock (`date -u "+%Y-%m-%d %H:%M"`), never from memory. One
+clock keeps entries in order when sessions run in different time zones or
+containers. Entries written before a project adopted this rule may be in
+local time; they are not rewritten.
+
 ## llm/PROJECT_STATE.md — the current-truth snapshot
 Overwrite (not append) this file at the end of every session, and again
 right before context compaction. This is the single most important file:

@@ -4,6 +4,19 @@ Release notes for the LLM governance framework plugin. The `update` skill
 reads this file to tell users what changed between their installed version and
 the plugin's. Newest first.
 
+## 0.6.0
+- **Timestamps are now UTC everywhere.** The `CLAUDE.md` block tells the
+  assistant to use `date -u`, the SessionStart hook injects UTC, the Stop hook
+  stamps `PROJECT_STATE.md` in UTC, and `SESSIONS.jsonl` lines are UTC. Formats
+  are unchanged and there is no `Z` suffix. The record spec (`llm-records.md`)
+  states the rule.
+- **Upgrading.** Update the plugin, then run `/llm-governance:update` in each
+  project. It refreshes the three hooks, `llm/framework/llm-records.md` and the
+  `CLAUDE.md` block (files you edited are reported as conflicts, not
+  overwritten). Existing entries are not rewritten, so older ones may be in
+  local time.
+- The audit checks that the `Last updated:` stamp has the `YYYY-MM-DD HH:MM` form.
+
 ## 0.5.0
 - **Upgrading.** Update the plugin, then run `/llm-governance:update` in each
   project: it adds the new `.gitattributes` rules below and moves the version

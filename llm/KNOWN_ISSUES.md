@@ -37,10 +37,10 @@ Potential solution: Appends are now a single write (append_block in lib.sh), whi
 
 ## [2026-10-07] Record timestamps mix local time and UTC
 Severity: low
-Status: open
+Status: resolved
 Files: plugin/core/llm-records.md, plugin/adapters/claude-code/.claude/hooks/check_project_state.sh
 Description: The spec says to take timestamps from the machine's date. A host session (local time, UTC-4 here) and a container session (UTC) therefore stamp entries hours apart, so CHANGELOG entries can sort out of order and trip the audit's newest-first check. The Stop hook stamps PROJECT_STATE.md in local time.
-Potential solution: Decide on UTC (date -u) everywhere and update the rules, the skills, the stamp hook and the audit together.
+Potential solution: Resolved in 0.6.0: UTC everywhere (see llm/DECISIONS.md). Entries written before it may be local time and are not rewritten.
 
 ## [2026-10-07] Edited framework files are reported as conflicts at every update
 Severity: low
@@ -151,5 +151,5 @@ Potential solution: Resolved.
 Severity: low
 Status: open
 Files: llm/SESSIONS.jsonl, .claude/hooks/log_session_end.sh
-Description: The log has no lines since the adoption. Checked: the hook is registered in .claude/settings.json, runs correctly when invoked by hand, and wrote a line in a real `claude -p` session (Claude Code 2.1.292, dev container, throwaway copy of the project). Likely explanations, not yet proven: the adoption session started before the hook existed, and the desktop-app session that has run since has not ended (it was continued after compaction and across days). Separately, the hook stamps its own local-time `date` without an offset, one more case for the timestamp convention in TODO.
+Description: The log has no lines since the adoption. Checked: the hook is registered in .claude/settings.json, runs correctly when invoked by hand, and wrote a line in a real `claude -p` session (Claude Code 2.1.292, dev container, throwaway copy of the project). Likely explanations, not yet proven: the adoption session started before the hook existed, and the desktop-app session that has run since has not ended (it was continued after compaction and across days).
 Potential solution: End or /clear a desktop session in this repo and check whether a line appears. If not, the hook does not fire for that exit path (the script's own header already warns about this) and the log should be documented as best-effort only.

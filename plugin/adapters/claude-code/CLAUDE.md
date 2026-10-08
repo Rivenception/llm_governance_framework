@@ -34,8 +34,8 @@ yet-locked policy.
 ## Session ID and timestamps
 A SessionStart hook injects the session ID and start time into your
 context. Use that exact session ID in every `Session:` field and in
-`CHANGES.jsonl`. For entry timestamps, run `date "+%Y-%m-%d %H:%M"` —
-never estimate. If no session ID was injected, write `unknown` rather than
+`CHANGES.jsonl`. All timestamps are UTC. For entry timestamps, run
+`date -u "+%Y-%m-%d %H:%M"` — never estimate. If no session ID was injected, write `unknown` rather than
 inventing one, and tell me the hook isn't working (usually `jq` missing).
 
 ## Framework rules (imported)
